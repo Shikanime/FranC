@@ -1,2 +1,2 @@
-# School lab : my_lang
+# 私のカワイmy_lang
  フレンチ・ハウス 
