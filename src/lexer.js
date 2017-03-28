@@ -1,19 +1,19 @@
 /**
- * Tokenize Stream
+ * Tokenize stream object
  * 
- * @param {any} code 
+ * @param {string} code 
  * @returns {object}
  */
-function tokenStream(code) {
+function tokenStream(code, callback) {
     var current_char = null;
 
-    return {
+    callback({
         next_char: next_char,
         peek_char: peek_char,
         end_of_file: end_of_file,
         error: code.error,
         warning: code.warning
-    };
+    });
 
     /**
      * Check if the character is keyword
@@ -212,6 +212,10 @@ function tokenStream(code) {
 
     /* Core parse */
 
+    /**
+     * Main entry recursive reader
+     * 
+     */
     function read_next_char() {
         extract_while_pattern(is_indentation);
 
@@ -255,8 +259,11 @@ function tokenStream(code) {
      * @returns {char}
      */
     function next_char() {
+        // get current char if he have been peek
         var tok = current_char;
+
         current_char = null;
+
         return tok || read_next_char();
     }
 }

@@ -1,30 +1,31 @@
 /**
- * code stream object
+ * Input stream object
  * 
- * @param {any} code 
+ * @param {string} code 
  * @returns {object}
  */
-function codeStream(code) {
+function codeStream(code, callback) {
     var position = 0;
     var line = 1;
     var column = 0;
 
-    return {
+    callback({
         next_char: next_char,
         peek_char: peek_char,
         end_of_file: end_of_file,
         error: error,
         warning: warning
-    };
+    });
 
     /**
-     * Get next element
+     * Get next element and splice it from the stream
      * 
      * @returns {char}
      */
     function next_char() {
         let char = code.charAt(position++);
 
+        // Send next line if it's the end of current line
         if (char == "\n") {
             line++;
             column = 0;
@@ -36,11 +37,11 @@ function codeStream(code) {
     }
 
     /**
-     * Get next element and splice it from the stream
+     * Peek the current element to be process in lexer
      * 
      * @returns {char}
      */
-    function next_char() {
+    function peek_char() {
         return code.charAt(position);
     }
 
@@ -59,7 +60,7 @@ function codeStream(code) {
      * @param {string} msg 
      */
     function error(msg) {
-        throw new Error(msg + " (" + line + ":" + column + ")");
+        throw new Error("Error" + msg + " (" + line + ":" + column + ")");
     }
 
     /**
@@ -68,6 +69,6 @@ function codeStream(code) {
      * @param {string} msg 
      */
     function warning(msg) {
-        throw new Error(msg + " (" + line + ":" + column + ")");
+        throw new Error("Warning:" + msg + " (" + line + ":" + column + ")");
     }
 }
