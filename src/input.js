@@ -1,10 +1,10 @@
 /**
  * Input stream object
  * 
- * @param {string} code 
+ * @param {string} codeRaw 
  * @returns {object}
  */
-function codeStream(code, callback) {
+function codeStream(codeRaw, callback) {
     var position = 0;
     var line = 1;
     var column = 0;
@@ -23,7 +23,7 @@ function codeStream(code, callback) {
      * @returns {char}
      */
     function next_char() {
-        let char = code.charAt(position++);
+        let char = codeRaw.charAt(position++);
 
         // Send next line if it's the end of current line
         if (char == "\n") {
@@ -42,7 +42,7 @@ function codeStream(code, callback) {
      * @returns {char}
      */
     function peek_char() {
-        return code.charAt(position);
+        return codeRaw.charAt(position);
     }
 
     /**

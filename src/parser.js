@@ -34,7 +34,7 @@ function parseStream(codeTokenized, callback) {
 
         // Detect if there is another content
         if (is_keyword("else")) {
-            input.next_char();
+            codeTokenized.next_char();
             output.else_content = parse_expression();
         };
 
@@ -46,7 +46,7 @@ function parseStream(codeTokenized, callback) {
      * 
      * @returns {object}
      */
-    function parse_function() {
+    function parse_container() {
         return {
             type: "container",
             variables: parse_container("(", ")", ",", parse_variables_name),
@@ -80,5 +80,52 @@ function parseStream(codeTokenized, callback) {
         skip_punctuation(end_char);
 
         return argument;
+    }
+
+    function parse_atom() {
+        return maybe_call(() => {
+            // Parameter parser
+            if (is_punctuation("(")) {
+                codeTokenized.next_char();
+                var expression = parse_expression();
+                skip_punctuation(")");
+                return expression;
+            }
+
+            // Content parser
+            if (is_punctuation("{")) return parse_program();
+            // Keyword
+            if (is_keyword("if")) return parse_if();
+            if (is_keyword("true") || is_keyword("true")) return parse_boolean();
+            if (is_keyword("function")) {
+                codeTokenized.next_char();
+                return parse_fucntion();
+            }
+
+            // Variables stockage
+            var token = codeTokenized.next_char();
+            if (token.type === "variables" || token.type === "number" || token.type === "string") return token;
+            unexpected();
+        });
+    }
+
+    function parse_program() {
+        var program = parse_container("{", "}", ";", parse_expression);
+
+        if (program.lenght === 0) return {
+            type: "bool",
+            value: false
+        }
+        if (program.lenght === 1) return program[0];
+        return {
+            type: "program",
+            program: program
+        }
+    }
+
+    function parse_expression() {
+        return maybe_call(() => {
+            return maybe_binary(parse_atom(), 0);
+        })
     }
 }

@@ -4,7 +4,7 @@
  * @param {string} code 
  * @returns {object}
  */
-function tokenStream(code, callback) {
+function tokenStream(codeTokenized, callback) {
     var current_char = null;
 
     callback({
