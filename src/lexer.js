@@ -71,7 +71,7 @@ function tokenStream(codeTokenized, callback) {
      * @param {char} char 
      * @returns {bool}
      */
-    function is_container(char) {
+    function is_punctuation(char) {
         return ",;(){}[]".indexOf(char) >= 0;
     }
 
@@ -232,8 +232,8 @@ function tokenStream(codeTokenized, callback) {
 
         // Sementic detection
         if (is_identifier_typage(char)) return read_identifier();
-        if (is_container(char)) return {
-            type: "container",
+        if (is_punctuation(char)) return {
+            type: "punctuation",
             value: code.next_char()
         };
         if (is_operator(char)) return {

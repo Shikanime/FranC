@@ -82,6 +82,11 @@ function parseStream(codeTokenized, callback) {
         return argument;
     }
 
+    /**
+     * Main entry point
+     * 
+     * @returns {any}
+     */
     function parse_atom() {
         return maybe_call(() => {
             // Parameter parser
@@ -109,9 +114,15 @@ function parseStream(codeTokenized, callback) {
         });
     }
 
+    /**
+     * Parse inside function declaration brace
+     * 
+     * @returns {object}
+     */
     function parse_program() {
         var program = parse_container("{", "}", ";", parse_expression);
 
+        // Brace content something?
         if (program.lenght === 0) return {
             type: "bool",
             value: false
@@ -120,12 +131,57 @@ function parseStream(codeTokenized, callback) {
         return {
             type: "program",
             program: program
-        }
+        };
     }
 
+    /**
+     * Parse inside container elements
+     * 
+     * @returns {any}
+     */
     function parse_expression() {
         return maybe_call(() => {
             return maybe_binary(parse_atom(), 0);
         })
     }
+
+    function maybe_call(expression) {
+        expression = expression();
+        return is_punctuation("(") ? parse_call(expression) : expression;
+    }
+
+    /**
+     * Call a function
+     * 
+     * @param {function} called_function 
+     * @returns {object}
+     */
+    function parse_function_call(called_function) {
+        return {
+            type: "call",
+            called_function: called_function,
+            arguments: parse_container("(", ")", ",", parse_expression)
+        };
+    }
+
+    /*
+        function maybe_binary(left, my_prec) {
+            var tok = is_op();
+            if (tok) {
+                var his_prec = PRECEDENCE[tok.value];
+                if (his_prec > my_prec) {
+                    input.next();
+                    var right = maybe_binary(parse_atom(), his_prec) // (*);
+                    var binary = {
+                        type: tok.value == "=" ? "assign" : "binary",
+                        operator: tok.value,
+                        left: left,
+                        right: right
+                    };
+                    return maybe_binary(binary, my_prec);
+                }
+            }
+            return left;
+        }
+    */
 }
