@@ -4,7 +4,6 @@
  * @param {string} code 
  * @returns {object}
  */
-
 function parseStream(codeTokenized, callback) {
 
 
@@ -39,7 +38,7 @@ function parseStream(codeTokenized, callback) {
 
         // Detect if there is another content
         if (is_keyword("else")) {
-            codeTokenized.next_char();
+            codeTokenized.next_token();
             output.else_content = parse_expression();
         };
 
@@ -96,7 +95,7 @@ function parseStream(codeTokenized, callback) {
         return maybe_call(() => {
             // Parameter parser
             if (is_punctuation("(")) {
-                codeTokenized.next_char();
+                codeTokenized.next_token();
                 var expression = parse_expression();
                 skip_punctuation(")");
                 return expression;
@@ -108,12 +107,12 @@ function parseStream(codeTokenized, callback) {
             if (is_keyword("if")) return parse_if();
             if (is_keyword("true") || is_keyword("true")) return parse_boolean();
             if (is_keyword("function")) {
-                codeTokenized.next_char();
+                codeTokenized.next_token();
                 return parse_fucntion();
             }
 
             // Variables stockage
-            var token = codeTokenized.next_char();
+            var token = codeTokenized.next_token();
             if (token.type === "variables" || token.type === "number" || token.type === "string") return token;
             unexpected();
         });
@@ -169,10 +168,11 @@ function parseStream(codeTokenized, callback) {
         };
     }
 
-    function maybe_binary(left, my_prec) {
+    function maybe_binary(left_side, previous_precedence) {
         var token = is_operator();
+
         if (token) {
-            var his_prec = {
+            var current_precedence = {
                 "=": 1,
                 "||": 2,
                 "&&": 3,
@@ -187,22 +187,23 @@ function parseStream(codeTokenized, callback) {
                 "*": 20,
                 "/": 20,
                 "%": 20,
-            }[tok.value];
+            }[token.value];
 
-            if (his_prec > my_prec) {
-                codeTokenized.next_char();
-                var right = maybe_binary(parse_atom(), his_prec) // (*);
+            //
+            if (current_precedence > previous_precedence) {
+                codeTokenized.next_token();
+                var right_side = maybe_binary(parse_atom(), current_precedence);
                 var binary = {
-                    type: tok.value === "=" ? "assign" : "binary",
-                    operator: tok.value,
-                    left: left,
-                    right: right
+                    type: token.value === "=" ? "assign" : "binary",
+                    operator: token.value,
+                    left_side: left_side,
+                    right_side: right_side
                 };
 
-                return maybe_binary(binary, my_prec);
+                return maybe_binary(binary, previous_precedence);
             }
         }
 
-        return left;
+        return left_side;
     }
 }
