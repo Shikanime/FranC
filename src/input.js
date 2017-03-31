@@ -1,11 +1,16 @@
 /**
  * Input stream object
  * 
+ * Setup different basic/primary code explorer
+ * handler into a single object for next process step.
+ * 
  * @param {string} codeRaw 
  * @returns {object}
  */
 function codeStream(codeRaw, callback) {
     var position = 0;
+
+    // Variables for error handler debugging
     var line = 1;
     var column = 0;
 
@@ -20,13 +25,16 @@ function codeStream(codeRaw, callback) {
     /**
      * Get next element and splice it from the stream
      * 
+     * That don't delete it from the memory, we just
+     * switch to the next character into the stream.
+     * 
      * @returns {char}
      */
     function next_char() {
         let char = codeRaw.charAt(position++);
 
-        // Send next line if it's the end of current line
-        if (char == "\n") {
+        // Check if that is the end of line
+        if (char === '\n') {
             line++;
             column = 0;
         } else {
@@ -38,6 +46,10 @@ function codeStream(codeRaw, callback) {
 
     /**
      * Peek the current element to be process in lexer
+     * 
+     * In diffrence with next char that don't 
+     * increment the stream, it get the current
+     * position character and send it.
      * 
      * @returns {char}
      */
@@ -57,6 +69,8 @@ function codeStream(codeRaw, callback) {
     /**
      * Error handler
      * 
+     * The code reading crashing, we can't continue.
+     * 
      * @param {string} msg 
      */
     function error(msg) {
@@ -65,6 +79,9 @@ function codeStream(codeRaw, callback) {
 
     /**
      * Warning handler
+     * 
+     * The diffrence here is that the program can work
+     * but we can do better.
      * 
      * @param {string} msg 
      */

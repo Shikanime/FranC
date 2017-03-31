@@ -1,28 +1,34 @@
 /**
  * Tokenize stream object
+ * Here is where we translate brute code into an recursive 
+ * JavaScript Object easier to read.
  * 
  * @param {string} code 
  * @returns {object}
  */
-function tokenStream(codeTokenized, callback) {
+function tokenStream(codeInput, callback) {
     var current_char = null;
 
     callback({
         next_char: next_char,
         peek_char: peek_char,
         end_of_file: end_of_file,
-        error: code.error,
-        warning: code.warning
+        error: codeInput.error,
+        warning: codeInput.warning
     });
 
     /**
      * Check if the character is keyword
      * 
+     * Mainly all keyword of the program are here, we can add
+     * more. We just need to another here and add the parser
+     * function in parser.
+     * 
      * @param {string} string 
      * @returns {bool}
      */
     function is_keyword(string) {
-        return "si;alors;ou;fonction;vrai;faux;".indexOf(string + ';') >= 0;
+        return "if;then;else;function;true;false;".indexOf(string + ';') >= 0;
     }
 
     /**
@@ -36,7 +42,7 @@ function tokenStream(codeTokenized, callback) {
     }
 
     /**
-     * Check if the character is a identifier that open brace
+     * Check if the character is a identifier that open brace/paranthese
      * 
      * @param {char} char 
      * @returns {bool}
@@ -91,13 +97,20 @@ function tokenStream(codeTokenized, callback) {
      * @returns {bool}
      */
     function end_of_file() {
-        return peek_char() == null;
+        return peek_char() === null;
     }
 
     /* EXTRACTOR */
 
     /**
-     * Main reader
+     * Extract until it see a pattern
+     * 
+     * The callback send a character type because to
+     * checker predicate function. The function need to
+     * return a boolean everytime the pattern is ok or 
+     * is no longer relevant.
+     * This function is mainly used for string extraction
+     * but it's enought flexible for other feature.
      * 
      * @param {function} predicate 
      * @returns {string}
@@ -105,8 +118,8 @@ function tokenStream(codeTokenized, callback) {
     function extract_while_pattern(predicate) {
         let string = "";
 
-        while (!code.end_of_file() && predicate(code.next_char())) {
-            string += code.next_char();
+        while (!codeInput.end_of_file() && predicate(codeInput.next_char())) {
+            string += codeInput.next_char();
         }
 
         return string;
@@ -115,6 +128,11 @@ function tokenStream(codeTokenized, callback) {
     /**
      * Extract until find the end pattern
      * 
+     * In difference with the while pattern extractor,
+     * this search for a caracter to end.
+     * This function is mainly designed for string extraction
+     * with escape detection.
+     * 
      * @param {any} end_char 
      * @returns {object}
      */
@@ -122,19 +140,16 @@ function tokenStream(codeTokenized, callback) {
         let escaped = false;
         let string = "";
 
-        code.next_char();
-        while (!code.end_of_file()) {
-            let char = code.next_char();
+        codeInput.next_char();
+        while (!codeInput.end_of_file()) {
+            let next_char = codeInput.next_char();
 
             if (escaped) {
-                string += char;
+                string += next_char;
                 escaped = false;
-            } else if (char == "\\")
-                escaped = true;
-            else if (char == end_char)
-                break;
-            else
-                string += char;
+            } else if (next_char === "\\") escaped = true;
+            else if (next_char === end_char) break;
+            else string += next_char;
         }
 
         return string;
@@ -145,14 +160,17 @@ function tokenStream(codeTokenized, callback) {
     /**
      * Parse number (integer and float detection)
      * 
+     * This language doesn't support scientific notation or
+     * Hexadecimal.
+     * 
      * @returns {object}
      */
     function read_number() {
         let has_dot = false;
-        let number = extract_while_pattern(function(char) {
+        let number = extract_while_pattern(function(current_char) {
 
             // Float detection
-            if (char === ".") {
+            if (current_char === ".") {
 
                 // Switcher
                 if (has_dot) return false;
@@ -161,7 +179,7 @@ function tokenStream(codeTokenized, callback) {
                 return true;
             }
 
-            return is_digital(char);
+            return is_digital(current_char);
         });
 
         return {
@@ -172,6 +190,8 @@ function tokenStream(codeTokenized, callback) {
 
     /**
      * Parse identifier
+     * 
+     * Identify keyword in code.
      * 
      * @returns {object}
      */
@@ -187,7 +207,7 @@ function tokenStream(codeTokenized, callback) {
     /**
      * Parse string
      * 
-     * @returns 
+     * @returns {object}
      */
     function read_string() {
         return {
@@ -199,13 +219,16 @@ function tokenStream(codeTokenized, callback) {
     /**
      * Skip comment block
      * 
-     * @returns 
+     * That's basically a "ignore everything until end of line".
+     * 
+     * @returns {char}
      */
     function skip_comment() {
-        extract_while_pattern(function(char) {
-            return char != "\n";
+        extract_while_pattern(function(current_char) {
+            return current_char != '\n';
         });
-        code.next_char();
+
+        codeInput.next_char();
 
         return read_next_char();
     }
@@ -215,33 +238,37 @@ function tokenStream(codeTokenized, callback) {
     /**
      * Main entry recursive reader
      * 
+     * That is the core reader of the lexer. It decide to call
+     * the right reader function that call extractor or not after.
      */
     function read_next_char() {
+        // Skip your beautiful coding convention and line, of course.
         extract_while_pattern(is_indentation);
 
-        if (code.end_of_file()) return null;
+        // Quit the loop here
+        if (codeInput.end_of_file()) return null;
 
-        var char = code.next_char();
+        var next_char = codeInput.next_char();
 
         // Comment detect
-        if (char == "#") skip_comment();
+        if (next_char === "#") skip_comment();
 
         // Data type detection
-        if (char == '"') return read_string();
-        if (is_digital(char)) return read_number();
+        if (next_char === '"') return read_string();
+        if (is_digital(next_char)) return read_number();
 
         // Sementic detection
-        if (is_identifier_typage(char)) return read_identifier();
-        if (is_punctuation(char)) return {
+        if (is_identifier_typage(next_char)) return read_identifier();
+        if (is_punctuation(next_char)) return {
             type: "punctuation",
-            value: code.next_char()
+            value: codeInput.next_char()
         };
-        if (is_operator(char)) return {
+        if (is_operator(next_char)) return {
             type: "operator",
             value: extract_while_pattern(is_operator)
         };
 
-        code.error("Impossible d'identifier ce caractere: " + char);
+        codeInput.error("Impossible d'identifier ce caractere: " + next_char);
     }
 
     /**

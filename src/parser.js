@@ -20,6 +20,11 @@ function parseStream(codeTokenized, callback) {
         }
     }
 
+    /**
+     * Parse if condition and brace/keyword content
+     * 
+     * @return {object}
+     */
     function parse_if() {
         skip_keyword("if");
 
@@ -63,23 +68,23 @@ function parseStream(codeTokenized, callback) {
      * @param {function} parse 
      */
     function parse_container(begin_char, end_char, separator_char, parse) {
-        let argument = [];
+        let container_content = [];
         let first = true;
 
         skip_punctuation(begin_char);
         while (!codeTokenized.end_of_file()) {
             if (is_punctuation(end_char)) break;
 
-            // Skip empty function arguments
+            // Skip empty function container_content
             if (first) first = false;
             else skip_punctuation(separator_char);
 
             if (is_punctuation(end_char)) break;
-            argument.push(parser());
+            container_content.push(parser());
         }
         skip_punctuation(end_char);
 
-        return argument;
+        return container_content;
     }
 
     /**
@@ -164,24 +169,40 @@ function parseStream(codeTokenized, callback) {
         };
     }
 
-    /*
-        function maybe_binary(left, my_prec) {
-            var tok = is_op();
-            if (tok) {
-                var his_prec = PRECEDENCE[tok.value];
-                if (his_prec > my_prec) {
-                    input.next();
-                    var right = maybe_binary(parse_atom(), his_prec) // (*);
-                    var binary = {
-                        type: tok.value == "=" ? "assign" : "binary",
-                        operator: tok.value,
-                        left: left,
-                        right: right
-                    };
-                    return maybe_binary(binary, my_prec);
-                }
+    function maybe_binary(left, my_prec) {
+        var token = is_operator();
+        if (token) {
+            var his_prec = {
+                "=": 1,
+                "||": 2,
+                "&&": 3,
+                "<": 7,
+                ">": 7,
+                "<=": 7,
+                ">=": 7,
+                "==": 7,
+                "!=": 7,
+                "+": 10,
+                "-": 10,
+                "*": 20,
+                "/": 20,
+                "%": 20,
+            }[tok.value];
+
+            if (his_prec > my_prec) {
+                codeTokenized.next_char();
+                var right = maybe_binary(parse_atom(), his_prec) // (*);
+                var binary = {
+                    type: tok.value === "=" ? "assign" : "binary",
+                    operator: tok.value,
+                    left: left,
+                    right: right
+                };
+
+                return maybe_binary(binary, my_prec);
             }
-            return left;
         }
-    */
+
+        return left;
+    }
 }
