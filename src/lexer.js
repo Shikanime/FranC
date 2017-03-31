@@ -7,11 +7,11 @@
  * @returns {object}
  */
 function tokenStream(codeInput, callback) {
-    var current_char = null;
+    var current_token = null;
 
     callback({
-        next_char: next_char,
-        peek_char: peek_char,
+        next_token: next_token,
+        peek_token: peek_token,
         end_of_file: end_of_file,
         error: codeInput.error,
         warning: codeInput.warning
@@ -47,8 +47,8 @@ function tokenStream(codeInput, callback) {
      * @param {char} char 
      * @returns {bool}
      */
-    function is_identifier_typage(ch) {
-        return /[a-z_]/i.test(ch);
+    function is_identifier_typage(char) {
+        return /[a-z_]/i.test(char);
     }
 
     /**
@@ -87,7 +87,7 @@ function tokenStream(codeInput, callback) {
      * @param {char} char 
      * @returns {bool}
      */
-    function is_indentation(charch) {
+    function is_indentation(char) {
         return " \t\n".indexOf(char) >= 0;
     }
 
@@ -97,7 +97,7 @@ function tokenStream(codeInput, callback) {
      * @returns {bool}
      */
     function end_of_file() {
-        return peek_char() === null;
+        return peek_token() === null;
     }
 
     /* EXTRACTOR */
@@ -105,10 +105,10 @@ function tokenStream(codeInput, callback) {
     /**
      * Extract until it see a pattern
      * 
-     * The callback send a character type because to
-     * checker predicate function. The function need to
-     * return a boolean everytime the pattern is ok or 
-     * is no longer relevant.
+     * The callback send a character type to the predicate
+     * checker function. The function need to return 
+     * a boolean everytime the pattern is ok or is no longer 
+     * relevant.
      * This function is mainly used for string extraction
      * but it's enought flexible for other feature.
      * 
@@ -118,8 +118,8 @@ function tokenStream(codeInput, callback) {
     function extract_while_pattern(predicate) {
         let string = "";
 
-        while (!codeInput.end_of_file() && predicate(codeInput.next_char())) {
-            string += codeInput.next_char();
+        while (!codeInput.end_of_file() && predicate(codeInput.next_token())) {
+            string += codeInput.next_token();
         }
 
         return string;
@@ -133,23 +133,23 @@ function tokenStream(codeInput, callback) {
      * This function is mainly designed for string extraction
      * with escape detection.
      * 
-     * @param {any} end_char 
+     * @param {any} end_token 
      * @returns {object}
      */
-    function extract_until_pattern(end_char) {
+    function extract_until_pattern(end_token) {
         let escaped = false;
         let string = "";
 
-        codeInput.next_char();
+        codeInput.next_token();
         while (!codeInput.end_of_file()) {
-            let next_char = codeInput.next_char();
+            let next_token = codeInput.next_token();
 
             if (escaped) {
-                string += next_char;
+                string += next_token;
                 escaped = false;
-            } else if (next_char === "\\") escaped = true;
-            else if (next_char === end_char) break;
-            else string += next_char;
+            } else if (next_token === "\\") escaped = true;
+            else if (next_token === end_token) break;
+            else string += next_token;
         }
 
         return string;
@@ -167,10 +167,10 @@ function tokenStream(codeInput, callback) {
      */
     function read_number() {
         let has_dot = false;
-        let number = extract_while_pattern(function(current_char) {
+        let number = extract_while_pattern(function(current_token) {
 
             // Float detection
-            if (current_char === ".") {
+            if (current_token === ".") {
 
                 // Switcher
                 if (has_dot) return false;
@@ -179,7 +179,7 @@ function tokenStream(codeInput, callback) {
                 return true;
             }
 
-            return is_digital(current_char);
+            return is_digital(current_token);
         });
 
         return {
@@ -224,13 +224,13 @@ function tokenStream(codeInput, callback) {
      * @returns {char}
      */
     function skip_comment() {
-        extract_while_pattern(function(current_char) {
-            return current_char != '\n';
+        extract_while_pattern(function(current_token) {
+            return current_token != '\n';
         });
 
-        codeInput.next_char();
+        codeInput.next_token();
 
-        return read_next_char();
+        return read_next_token();
     }
 
     /* Core parse */
@@ -241,34 +241,34 @@ function tokenStream(codeInput, callback) {
      * That is the core reader of the lexer. It decide to call
      * the right reader function that call extractor or not after.
      */
-    function read_next_char() {
+    function read_next_token() {
         // Skip your beautiful coding convention and line, of course.
         extract_while_pattern(is_indentation);
 
         // Quit the loop here
         if (codeInput.end_of_file()) return null;
 
-        var next_char = codeInput.next_char();
+        var next_token = codeInput.next_token();
 
         // Comment detect
-        if (next_char === "#") skip_comment();
+        if (next_token === "#") skip_comment();
 
         // Data type detection
-        if (next_char === '"') return read_string();
-        if (is_digital(next_char)) return read_number();
+        if (next_token === '"') return read_string();
+        if (is_digital(next_token)) return read_number();
 
         // Sementic detection
-        if (is_identifier_typage(next_char)) return read_identifier();
-        if (is_punctuation(next_char)) return {
+        if (is_identifier_typage(next_token)) return read_identifier();
+        if (is_punctuation(next_token)) return {
             type: "punctuation",
-            value: codeInput.next_char()
+            value: codeInput.next_token()
         };
-        if (is_operator(next_char)) return {
+        if (is_operator(next_token)) return {
             type: "operator",
             value: extract_while_pattern(is_operator)
         };
 
-        codeInput.error("Impossible d'identifier ce caractere: " + next_char);
+        codeInput.error("Impossible d'identifier ce caractere: " + next_token);
     }
 
     /**
@@ -276,8 +276,8 @@ function tokenStream(codeInput, callback) {
      * 
      * @returns {char}
      */
-    function peek_char() {
-        return current_char || (current_char = read_next_char());
+    function peek_token() {
+        return current_token || (current_token = read_next_token());
     }
 
     /**
@@ -285,12 +285,12 @@ function tokenStream(codeInput, callback) {
      * 
      * @returns {char}
      */
-    function next_char() {
+    function next_token() {
         // get current char if he have been peek
-        var tok = current_char;
+        var token = current_token;
 
-        current_char = null;
+        current_token = null;
 
-        return tok || read_next_char();
+        return tok || read_next_token();
     }
 }
