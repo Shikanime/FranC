@@ -4,19 +4,30 @@
  * @param {string} code 
  * @returns {object}
  */
-function parseStream(codeTokenized, callback) {
+module.exports = function parseStream(codeTokenized) {
 
+    // Final code processing output.
+    // The end of a long travel ^^
+    return parse_code();
 
     /**
      * Parse the code
      */
     function parse_code() {
-        let code = [];
+        let program = [];
 
+        // code processing loop
         while (!codeTokenized.end_of_file()) {
-            code.push(parse_expression());
+            program.push(parse_expression());
+
+            // Check for end of line or multiple inline code
             if (!codeTokenized.end_of_file()) skip_punctuation(";");
         }
+
+        return {
+            type: "program",
+            program: program
+        };
     }
 
     /**
@@ -50,7 +61,7 @@ function parseStream(codeTokenized, callback) {
      * 
      * @returns {object}
      */
-    function parse_container() {
+    function parse_function() {
         return {
             type: "container",
             variables: parse_container("(", ")", ",", parse_variables_name),
@@ -59,7 +70,7 @@ function parseStream(codeTokenized, callback) {
     }
 
     /**
-     * Parse function content
+     * Parse container
      * 
      * @param {char} begin_char 
      * @param {char} end_char 
@@ -74,7 +85,7 @@ function parseStream(codeTokenized, callback) {
         while (!codeTokenized.end_of_file()) {
             if (is_punctuation(end_char)) break;
 
-            // Skip empty function container_content
+            // Skip empty function container
             if (first) first = false;
             else skip_punctuation(separator_char);
 
@@ -108,7 +119,7 @@ function parseStream(codeTokenized, callback) {
             if (is_keyword("true") || is_keyword("true")) return parse_boolean();
             if (is_keyword("function")) {
                 codeTokenized.next_token();
-                return parse_fucntion();
+                return parse_function();
             }
 
             // Variables stockage
@@ -151,7 +162,7 @@ function parseStream(codeTokenized, callback) {
 
     function maybe_call(expression) {
         expression = expression();
-        return is_punctuation("(") ? parse_call(expression) : expression;
+        return is_punctuation("(") ? parse_function_call(expression) : expression;
     }
 
     /**
@@ -168,6 +179,16 @@ function parseStream(codeTokenized, callback) {
         };
     }
 
+    /**
+     * Precedence distribution for calculation
+     * 
+     * That check the binary operator's precedence and
+     * check the next part of the calcul recursively.
+     * 
+     * @param {string} left_side 
+     * @param {integer} previous_precedence 
+     * @returns {string} 
+     */
     function maybe_binary(left_side, previous_precedence) {
         var token = is_operator();
 
@@ -205,5 +226,41 @@ function parseStream(codeTokenized, callback) {
         }
 
         return left_side;
+    }
+
+    /* VERIFICATION HELPER LAYERS */
+
+    function is_punctuation(char) {
+        var token = codeTokenized.peek_token();
+        return token && token.type == "punctuation" && (!char || token.value == char) && token;
+    }
+
+    function is_keyword(keyword) {
+        var token = codeTokenized.peek_token();
+        return token && token.type == "keyword" && (!keyword || token.value == keyword) && token;
+    }
+
+    function is_operator(operator) {
+        var token = codeTokenized.peek_token();
+        return token && token.type == "operator" && (!operator || token.value == operator) && token;
+    }
+
+    function skip_punctuation(char) {
+        if (is_punctuation(char)) codeTokenized.next_token();
+        else codeTokenized.error("Expecting punctuation: \"" + char + "\"");
+    }
+
+    function skip_keyword(keyword) {
+        if (is_keyword(keyword)) codeTokenized.next_token();
+        else codeTokenized.error("Expecting keyword: \"" + keyword + "\"");
+    }
+
+    function skip_operator(operator) {
+        if (is_operator + (operator)) codeTokenized.next_token();
+        else codeTokenized.error("Expecting operator: \"" + operator + "\"");
+    }
+
+    function unexpected() {
+        codeTokenized.error("Unexpected token: " + JSON.stringify(codeTokenized.peek_token()));
     }
 }

@@ -7,20 +7,23 @@
  * @param {string} codeRaw 
  * @returns {object}
  */
-function codeStream(codeRaw, callback) {
+module.exports = function collectStream(codeRaw) {
     var position = 0;
 
     // Variables for error handler debugging
     var line = 1;
     var column = 0;
 
-    callback({
+    // Returning explorer tools
+    return {
         next_char: next_char,
         peek_char: peek_char,
         end_of_file: end_of_file,
         error: error,
         warning: warning
-    });
+    };
+
+    /* TOOLS */
 
     /**
      * Get next element and splice it from the stream
@@ -74,7 +77,7 @@ function codeStream(codeRaw, callback) {
      * @param {string} msg 
      */
     function error(msg) {
-        throw new Error("Error" + msg + " (" + line + ":" + column + ")");
+        console.error("[FrancaisJS] [Erreur]  " + msg + " (" + line + ":" + column + ")");
     }
 
     /**
@@ -86,6 +89,6 @@ function codeStream(codeRaw, callback) {
      * @param {string} msg 
      */
     function warning(msg) {
-        throw new Error("Warning:" + msg + " (" + line + ":" + column + ")");
+        console.error("[FrancaisJS] [Warning] " + msg + " (" + line + ":" + column + ")");
     }
 }

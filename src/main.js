@@ -1,12 +1,8 @@
-require("./input");
-require("./lexer");
-require("./parser");
+const explore = require("./modules/module.explorer");
+const lexe = require("./modules/module.lexer");
+const parse = require("./modules/module.parser");
 
-codeEntry = "";
+codeEntry = `sum = function(x, y) x + y;`;
 
-input(codeEntry)
-    .then((codeSource) => lexer(codeSource))
-    .then((codeTokenized) => parse(codeTokenized))
-    .catch(function(e) {
-        console.error("Hein?")
-    })
+var codeParsed = parse(lexe(explore(codeEntry)));
+console.log(codeParsed);
