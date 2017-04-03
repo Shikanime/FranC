@@ -1,2 +1,2 @@
-# 私のカワイmy_lang
+# FrançaisJS
  フレンチ・ハウス 
