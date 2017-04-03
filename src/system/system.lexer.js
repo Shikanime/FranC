@@ -1,5 +1,8 @@
+const parse = require("./system.parser");
+
 /**
  * Tokenize stream object
+ * 
  * Here is where we translate brute code into an recursive 
  * JavaScript Object easier to read.
  * 
@@ -7,16 +10,16 @@
  * @returns {object}
  */
 module.exports = function tokenizeStream(codeInput) {
-    var current_token = null;
+    var currentToken = null;
 
     // Returning explorer tools
-    return {
-        next_token: next_token,
-        peek_token: peek_token,
-        end_of_file: end_of_file,
-        error: codeInput.error,
-        warning: codeInput.warning
-    };
+    parse({
+        nextToken: nextToken,
+        peekToken: peekToken,
+        endOfFile: endOfFile,
+        errorMessage: codeInput.errorMessage,
+        warningMessage: codeInput.warningMessage
+    })
 
     /* TOOLS */
 
@@ -25,14 +28,14 @@ module.exports = function tokenizeStream(codeInput) {
      * 
      * @returns {char}
      */
-    function next_token() {
+    function nextToken() {
         // get the current peeked
-        var token = current_token;
+        var token = currentToken;
 
         // tell the next call to increment the stream
-        current_token = null;
+        currentToken = null;
 
-        return token || read_next_token();
+        return token || readNextToken();
     }
 
     /**
@@ -40,8 +43,8 @@ module.exports = function tokenizeStream(codeInput) {
      * 
      * @returns {char}
      */
-    function peek_token() {
-        return current_token || (current_token = read_next_token());
+    function peekToken() {
+        return currentToken || (currentToken = readNextToken());
     }
 
     /**
@@ -49,8 +52,8 @@ module.exports = function tokenizeStream(codeInput) {
      * 
      * @returns {bool}
      */
-    function end_of_file() {
-        return peek_token() === null;
+    function endOfFile() {
+        return peekToken() === null;
     }
 
     /* CODE READER */
@@ -61,36 +64,36 @@ module.exports = function tokenizeStream(codeInput) {
      * That is the core reader of the lexer. It decide to call
      * the right reader function that call extractor or not after.
      */
-    function read_next_token() {
+    function readNextToken() {
         // Skip your beautiful coding convention and line, of course.
-        extract_while_pattern(is_indentation);
+        extractWhilePattern(indentationType);
 
         // Quit the loop here
-        if (codeInput.end_of_file()) return null;
+        if (codeInput.endOfFile()) return null;
 
-        var next_char = codeInput.next_char();
+        let peekedChar = codeInput.peekChar();
 
         // Comment detect
-        if (next_char === "#") skip_until_char('\n');
+        if (peekedChar === "#") skipUntilChar('\n');
 
         // Data type detection
-        if (next_char === '"') return read_string();
-        if (is_digital(next_char)) return read_number();
+        if (peekedChar === '"') return readString();
+        if (digitalType(peekedChar)) return readNumber();
 
         // Sementic detection
-        if (is_identifier_typage(next_char)) return read_identifier();
-        if (is_punctuation(next_char)) return {
+        if (identifierTypageType(peekedChar)) return readIdentifier();
+        if (punctuationType(peekedChar)) return {
             type: "punctuation",
-            value: codeInput.next_char()
+            value: codeInput.nextChar()
         };
-        if (is_operator(next_token)) return {
+        if (operatorType(peekedChar)) return {
             type: "operator",
-            value: extract_while_pattern(is_operator)
+            value: extractWhilePattern(operatorType)
         };
 
-        codeInput.error("Impossible d'identifier ce caractere: " + next_token);
+        codeInput.errorMessage("Impossible d'identifier ce token:", peekedChar);
     }
-    
+
     /**
      * Parse number (integer and float detection)
      * 
@@ -99,20 +102,20 @@ module.exports = function tokenizeStream(codeInput) {
      * 
      * @returns {object}
      */
-    function read_number() {
-        let has_dot = false;
-        let number = extract_while_pattern(function(current_char) {
+    function readNumber() {
+        let dot = false;
+        let number = extractWhilePattern(function(currentChar) {
             // Float detection and skip the digit checker
-            if (current_char === '.') {
+            if (currentChar === '.') {
 
                 // Switcher
-                if (has_dot) return false;
-                has_dot = true;
+                if (dot) return false;
+                dot = true;
 
                 return true;
             }
 
-            return is_digital(current_char);
+            return digitalType(currentChar);
         });
 
         return {
@@ -128,24 +131,26 @@ module.exports = function tokenizeStream(codeInput) {
      * 
      * @returns {object}
      */
-    function read_identifier() {
-        let identifier = extract_while_pattern(is_identifier);
+    function readIdentifier() {
+        let identifier = extractWhilePattern(identifierType);
 
         return {
-            type: is_keyword(identifier) ? "keyword" : "variable",
+            type: keywordType(identifier) ? "keyword" : "variable",
             value: identifier
         };
     }
+
+    /* 化物語の羽川翼 */
 
     /**
      * Parse string
      * 
      * @returns {object}
      */
-    function read_string() {
+    function readString() {
         return {
             type: "string",
-            value: extract_until_char('"')
+            value: extractUntilChar('"')
         };
     }
 
@@ -162,11 +167,11 @@ module.exports = function tokenizeStream(codeInput) {
      * @param {function} predicate 
      * @returns {string}
      */
-    function extract_while_pattern(predicate) {
+    function extractWhilePattern(predicate) {
         let string = "";
 
-        while (!codeInput.end_of_file() && predicate(codeInput.next_char())) {
-            string += codeInput.next_char();
+        while (!codeInput.endOfFile() && predicate(codeInput.nextChar())) {
+            string += codeInput.nextChar();
         }
 
         return string;
@@ -180,23 +185,23 @@ module.exports = function tokenizeStream(codeInput) {
      * This function is mainly designed for string extraction
      * with escape detection.
      * 
-     * @param {any} end_token 
+     * @param {any} endChar 
      * @returns {object}
      */
-    function extract_until_char(end_char) {
+    function extractUntilChar(endChar) {
         let escaped = false;
         let string = "";
 
-        codeInput.next_char();
-        while (!codeInput.end_of_file()) {
-            let next_char = codeInput.next_char();
+        codeInput.nextChar();
+        while (!codeInput.endOfFile()) {
+            let nextChar = codeInput.nextChar();
 
             if (escaped) {
-                string += next_char;
+                string += nextChar;
                 escaped = false;
-            } else if (next_char === "\\") escaped = true;
-            else if (next_char === end_char) break;
-            else string += next_char;
+            } else if (nextChar === "\\") escaped = true;
+            else if (nextChar === endChar) break;
+            else string += nextChar;
         }
 
         return string;
@@ -209,43 +214,43 @@ module.exports = function tokenizeStream(codeInput) {
      * 
      * @returns {char}
      */
-    function skip_until_char(char) {
-        extract_while_pattern(function(current_char) {
-            return current_char !== char;
+    function skipUntilChar(char) {
+        extractWhilePattern(function(currentChar) {
+            return currentChar !== char;
         });
 
-        codeInput.next_char();
+        codeInput.nextChar();
 
-        return read_next_token();
+        return readNextToken();
     }
 
     /* VERIFICATION HELPER LAYERS */
 
-    function is_keyword(string) {
+    function keywordType(string) {
         return "if;then;else;function;true;false;".indexOf(string + ';') >= 0;
     }
 
-    function is_digital(char) {
+    function digitalType(char) {
         return /[0-9]/i.test(char);
     }
 
-    function is_identifier_typage(char) {
+    function identifierTypageType(char) {
         return /[a-z_]/i.test(char);
     }
 
-    function is_identifier(char) {
-        return is_identifier_typage(char) || "?!-<>=0123456789".indexOf(char) >= 0;
+    function identifierType(char) {
+        return identifierTypageType(char) || "?!-<>=0123456789".indexOf(char) >= 0;
     }
 
-    function is_operator(char) {
+    function operatorType(char) {
         return "+-*/%=&|<>!".indexOf(char) >= 0;
     }
 
-    function is_punctuation(char) {
+    function punctuationType(char) {
         return ",;(){}[]".indexOf(char) >= 0;
     }
 
-    function is_indentation(char) {
+    function indentationType(char) {
         return " \t\n".indexOf(char) >= 0;
     }
 }

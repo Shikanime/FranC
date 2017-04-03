@@ -1,8 +1,7 @@
-const explore = require("./modules/module.explorer");
-const lexe = require("./modules/module.lexer");
-const parse = require("./modules/module.parser");
+const explore = require("./system/system.explorer");
 
-codeEntry = `sum = function(x, y) x + y;`;
+codeEntry = `function(1+1);`;
 
-var codeParsed = parse(lexe(explore(codeEntry)));
+var codeParsed = explore(codeEntry);
+
 console.log(codeParsed);
