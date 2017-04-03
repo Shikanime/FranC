@@ -210,7 +210,7 @@ module.exports = function parseStream(codeTokenized) {
                 "%": 20,
             }[token.value];
 
-            //
+            // Check operation nature
             if (current_precedence > previous_precedence) {
                 codeTokenized.next_token();
                 var right_side = maybe_binary(parse_atom(), current_precedence);

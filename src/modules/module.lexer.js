@@ -26,9 +26,10 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {char}
      */
     function next_token() {
-        // get current char if he have been peek
+        // get the current peeked
         var token = current_token;
 
+        // tell the next call to increment the stream
         current_token = null;
 
         return token || read_next_token();
@@ -52,10 +53,10 @@ module.exports = function tokenizeStream(codeInput) {
         return peek_token() === null;
     }
 
-    /* MAIN LEXER ENTRY */
+    /* CODE READER */
 
     /**
-     * Main entry reader
+     * Main reader
      * 
      * That is the core reader of the lexer. It decide to call
      * the right reader function that call extractor or not after.
@@ -67,18 +68,18 @@ module.exports = function tokenizeStream(codeInput) {
         // Quit the loop here
         if (codeInput.end_of_file()) return null;
 
-        var next_token = codeInput.next_char();
+        var next_char = codeInput.next_char();
 
         // Comment detect
-        if (next_token === "#") skip_comment();
+        if (next_char === "#") skip_until_char('\n');
 
         // Data type detection
-        if (next_token === '"') return read_string();
-        if (is_digital(next_token)) return read_number();
+        if (next_char === '"') return read_string();
+        if (is_digital(next_char)) return read_number();
 
         // Sementic detection
-        if (is_identifier_typage(next_token)) return read_identifier();
-        if (is_punctuation(next_token)) return {
+        if (is_identifier_typage(next_char)) return read_identifier();
+        if (is_punctuation(next_char)) return {
             type: "punctuation",
             value: codeInput.next_char()
         };
@@ -89,64 +90,7 @@ module.exports = function tokenizeStream(codeInput) {
 
         codeInput.error("Impossible d'identifier ce caractere: " + next_token);
     }
-
-    /* EXTRACTOR HELPERS */
-
-    /**
-     * Extract until it see a pattern
-     * 
-     * The callback send a character type to the predicate
-     * checker function. The function need to return 
-     * a boolean everytime the pattern is ok or is no longer 
-     * relevant.
-     * This function is mainly used for string extraction
-     * but it's enought flexible for other feature.
-     * 
-     * @param {function} predicate 
-     * @returns {string}
-     */
-    function extract_while_pattern(predicate) {
-        let string = "";
-
-        while (!codeInput.end_of_file() && predicate(codeInput.next_char())) {
-            string += codeInput.next_char();
-        }
-
-        return string;
-    }
-
-    /**
-     * Extract until find the end pattern
-     * 
-     * In difference with the while pattern extractor,
-     * this search for a caracter to end.
-     * This function is mainly designed for string extraction
-     * with escape detection.
-     * 
-     * @param {any} end_token 
-     * @returns {object}
-     */
-    function extract_until_pattern(end_token) {
-        let escaped = false;
-        let string = "";
-
-        codeInput.next_char();
-        while (!codeInput.end_of_file()) {
-            let next_token = codeInput.next_char();
-
-            if (escaped) {
-                string += next_token;
-                escaped = false;
-            } else if (next_token === "\\") escaped = true;
-            else if (next_token === end_token) break;
-            else string += next_token;
-        }
-
-        return string;
-    }
-
-    /* CODE READER */
-
+    
     /**
      * Parse number (integer and float detection)
      * 
@@ -157,10 +101,9 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function read_number() {
         let has_dot = false;
-        let number = extract_while_pattern(function(current_token) {
-
-            // Float detection
-            if (current_token === ".") {
+        let number = extract_while_pattern(function(current_char) {
+            // Float detection and skip the digit checker
+            if (current_char === '.') {
 
                 // Switcher
                 if (has_dot) return false;
@@ -169,7 +112,7 @@ module.exports = function tokenizeStream(codeInput) {
                 return true;
             }
 
-            return is_digital(current_token);
+            return is_digital(current_char);
         });
 
         return {
@@ -202,20 +145,73 @@ module.exports = function tokenizeStream(codeInput) {
     function read_string() {
         return {
             type: "string",
-            value: extract_until_pattern('"')
+            value: extract_until_char('"')
         };
     }
 
+    /* EXTRACTOR HELPERS */
+
     /**
-     * Skip comment block
+     * Extract until it see a char
      * 
-     * That's basically a "ignore everything until end of line".
+     * The extractor send a character to the predicate
+     * checker function to be proccess and return boolean.
+     * This function is mainly used for string extraction
+     * but it's enought flexible for other feature.
+     * 
+     * @param {function} predicate 
+     * @returns {string}
+     */
+    function extract_while_pattern(predicate) {
+        let string = "";
+
+        while (!codeInput.end_of_file() && predicate(codeInput.next_char())) {
+            string += codeInput.next_char();
+        }
+
+        return string;
+    }
+
+    /**
+     * Extract until find the end pattern
+     * 
+     * In difference with the while pattern extractor,
+     * this search for a caracter to end.
+     * This function is mainly designed for string extraction
+     * with escape detection.
+     * 
+     * @param {any} end_token 
+     * @returns {object}
+     */
+    function extract_until_char(end_char) {
+        let escaped = false;
+        let string = "";
+
+        codeInput.next_char();
+        while (!codeInput.end_of_file()) {
+            let next_char = codeInput.next_char();
+
+            if (escaped) {
+                string += next_char;
+                escaped = false;
+            } else if (next_char === "\\") escaped = true;
+            else if (next_char === end_char) break;
+            else string += next_char;
+        }
+
+        return string;
+    }
+
+    /**
+     * Skip a block
+     * 
+     * That's basically a "ignore everything until something".
      * 
      * @returns {char}
      */
-    function skip_comment() {
-        extract_while_pattern(function(current_token) {
-            return current_token != '\n';
+    function skip_until_char(char) {
+        extract_while_pattern(function(current_char) {
+            return current_char !== char;
         });
 
         codeInput.next_char();

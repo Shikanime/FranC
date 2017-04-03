@@ -1,8 +1,7 @@
 /**
  * Input stream object
  * 
- * Setup different basic/primary code explorer
- * handler into a single object for next process step.
+ * Setup different primary code explorer
  * 
  * @param {string} codeRaw 
  * @returns {object}
@@ -40,9 +39,8 @@ module.exports = function collectStream(codeRaw) {
         if (char === '\n') {
             line++;
             column = 0;
-        } else {
+        } else 
             column++;
-        }
 
         return char;
     }
