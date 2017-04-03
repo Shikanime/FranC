@@ -21,7 +21,7 @@ module.exports = function parseStream(codeTokenized) {
             program.push(parseExpression());
 
             // Check for end of line or multiple inline code
-            if (!codeTokenized.endOfFile()) skipPunctuation(";");
+            if (!codeTokenized.endOfFile()) skipPunctuation(';');
         }
 
         return {
@@ -38,19 +38,18 @@ module.exports = function parseStream(codeTokenized) {
     function parseIf() {
         skipKeyword("if");
 
-        var condition = parseExpression();
-        if (!punctuationType("{")) skipKeyword("alors");
-        var then_content = parseExpression();
-        var output = {
+        let condition = parseExpression();
+        if (!punctuationType("{")) skipKeyword("then");
+        let output = {
             type: "if",
             condition: condition,
-            if_content: then_content
+            ifContent: parseExpression()
         };
 
         // Detect if there is another content
         if (keywordType("else")) {
             codeTokenized.nextToken();
-            output.else_content = parseExpression();
+            output.elseContent = parseExpression();
         };
 
         return output;
@@ -63,7 +62,7 @@ module.exports = function parseStream(codeTokenized) {
      */
     function parseFunction() {
         return {
-            type: "container",
+            type: "function",
             variables: parseContainer("(", ")", ",", parse_variables_name),
             body: parseExpression()
         }
@@ -72,29 +71,29 @@ module.exports = function parseStream(codeTokenized) {
     /**
      * Parse container
      * 
-     * @param {char} begin_char 
+     * @param {char} beginChar 
      * @param {char} endChar 
-     * @param {char} separator_char 
+     * @param {char} separatorChar 
      * @param {function} parse 
      */
-    function parseContainer(begin_char, endChar, separator_char, parse) {
-        let container_content = [];
+    function parseContainer(beginChar, endChar, separatorChar, parser) {
+        let containerContent = [];
         let first = true;
 
-        skipPunctuation(begin_char);
+        skipPunctuation(beginChar);
         while (!codeTokenized.endOfFile()) {
             if (punctuationType(endChar)) break;
 
             // Skip empty function container
             if (first) first = false;
-            else skipPunctuation(separator_char);
+            else skipPunctuation(separatorChar);
 
             if (punctuationType(endChar)) break;
-            container_content.push(parser());
+            containerContent.push(parser());
         }
         skipPunctuation(endChar);
 
-        return container_content;
+        return containerContent;
     }
 
     /**
@@ -102,21 +101,25 @@ module.exports = function parseStream(codeTokenized) {
      * 
      * @returns {any}
      */
-    function parseAtom() {
+    function dispatch() {
         return maybe_call(() => {
             // Parameter parser
-            if (punctuationType("(")) {
+            if (punctuationType('(')) {
                 codeTokenized.nextToken();
-                var expression = parseExpression();
-                skipPunctuation(")");
+                let expression = parseExpression();
+                skipPunctuation(')');
+
                 return expression;
             }
 
             // Content parser
-            if (punctuationType("{")) return parseProgram();
+            if (punctuationType('{')) return parseProgram();
+
             // Keyword
             if (keywordType("if")) return parseIf();
-            if (keywordType("true") || keywordType("true")) return parse_boolean();
+            if (keywordType("true") ||
+                keywordType("true"))
+                return parse_boolean();
             if (keywordType("function")) {
                 codeTokenized.nextToken();
                 return parseFunction();
@@ -124,7 +127,12 @@ module.exports = function parseStream(codeTokenized) {
 
             // Variables stockage
             var token = codeTokenized.nextToken();
-            if (token.type === "variables" || token.type === "number" || token.type === "string") return token;
+            if (token.type === "variable" ||
+                token.type === "number" ||
+                token.type === "string")
+                return token;
+
+            // No, no, no, no.... n...o
             unexpectedMessage();
         });
     }
@@ -156,7 +164,7 @@ module.exports = function parseStream(codeTokenized) {
      */
     function parseExpression() {
         return maybe_call(() => {
-            return maybe_binary(parseAtom(), 0);
+            return maybe_binary(dispatch(), 0);
         })
     }
 
@@ -213,7 +221,7 @@ module.exports = function parseStream(codeTokenized) {
             // Check operation nature
             if (current_precedence > previous_precedence) {
                 codeTokenized.nextToken();
-                var right_side = maybe_binary(parseAtom(), current_precedence);
+                var right_side = maybe_binary(dispatch(), current_precedence);
                 var binary = {
                     type: token.value === "=" ? "assign" : "binary",
                     operator: token.value,
@@ -232,17 +240,26 @@ module.exports = function parseStream(codeTokenized) {
 
     function punctuationType(char) {
         var token = codeTokenized.peekToken();
-        return token && token.type == "punctuation" && (!char || token.value == char) && token;
+        return token &&
+            token.type == "punctuation" &&
+            (!char || token.value == char) &&
+            token;
     }
 
     function keywordType(keyword) {
         var token = codeTokenized.peekToken();
-        return token && token.type == "keyword" && (!keyword || token.value == keyword) && token;
+        return token &&
+            token.type == "keyword" &&
+            (!keyword || token.value == keyword) &&
+            token;
     }
 
     function operatorType(operator) {
         var token = codeTokenized.peekToken();
-        return token && token.type == "operator" && (!operator || token.value == operator) && token;
+        return token &&
+            token.type == "operator" &&
+            (!operator || token.value == operator) &&
+            token;
     }
 
     function skipPunctuation(char) {

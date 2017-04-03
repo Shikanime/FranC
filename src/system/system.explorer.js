@@ -17,7 +17,7 @@ module.exports = function collectStream(codeRaw) {
     var codeColumn = 0;
 
     // Return explorer tools
-    lexe({
+    return lexe({
         nextChar: nextChar,
         peekChar: peekChar,
         endOfFile: endOfFile,

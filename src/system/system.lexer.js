@@ -13,7 +13,7 @@ module.exports = function tokenizeStream(codeInput) {
     var currentToken = null;
 
     // Returning explorer tools
-    parse({
+    return parse({
         nextToken: nextToken,
         peekToken: peekToken,
         endOfFile: endOfFile,
@@ -35,7 +35,8 @@ module.exports = function tokenizeStream(codeInput) {
         // tell the next call to increment the stream
         currentToken = null;
 
-        return token || readNextToken();
+        return token ||
+            readNextToken();
     }
 
     /**
@@ -44,7 +45,8 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {char}
      */
     function peekToken() {
-        return currentToken || (currentToken = readNextToken());
+        return currentToken ||
+            (currentToken = readNextToken());
     }
 
     /**
@@ -65,7 +67,7 @@ module.exports = function tokenizeStream(codeInput) {
      * the right reader function that call extractor or not after.
      */
     function readNextToken() {
-        // Skip your beautiful coding convention and line, of course.
+        // Skip your beautiful coding convention and line, norage de mon panage.
         extractWhilePattern(indentationType);
 
         // Quit the loop here
@@ -74,7 +76,7 @@ module.exports = function tokenizeStream(codeInput) {
         let peekedChar = codeInput.peekChar();
 
         // Comment detect
-        if (peekedChar === "#") skipUntilChar('\n');
+        if (peekedChar === "#") return skipUntilChar('\n');
 
         // Data type detection
         if (peekedChar === '"') return readString();
@@ -91,7 +93,7 @@ module.exports = function tokenizeStream(codeInput) {
             value: extractWhilePattern(operatorType)
         };
 
-        codeInput.errorMessage("Impossible d'identifier ce token:", peekedChar);
+        codeInput.errorMessage("Impossible d'identifier ce caractere:", peekedChar);
     }
 
     /**
@@ -103,14 +105,14 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function readNumber() {
-        let dot = false;
+        let floatDot = false;
         let number = extractWhilePattern(function(currentChar) {
             // Float detection and skip the digit checker
             if (currentChar === '.') {
 
                 // Switcher
-                if (dot) return false;
-                dot = true;
+                if (floatDot) return false;
+                floatDot = true;
 
                 return true;
             }
@@ -223,34 +225,34 @@ module.exports = function tokenizeStream(codeInput) {
 
         return readNextToken();
     }
+}
 
-    /* VERIFICATION HELPER LAYERS */
+/* VERIFICATION HELPER LAYERS */
 
-    function keywordType(string) {
-        return "if;then;else;function;true;false;".indexOf(string + ';') >= 0;
-    }
+function keywordType(string) {
+    return "if;then;else;function;true;false;".indexOf(string + ';') >= 0;
+}
 
-    function digitalType(char) {
-        return /[0-9]/i.test(char);
-    }
+function digitalType(char) {
+    return /[0-9]/i.test(char);
+}
 
-    function identifierTypageType(char) {
-        return /[a-z_]/i.test(char);
-    }
+function identifierTypageType(char) {
+    return /[a-z_]/i.test(char);
+}
 
-    function identifierType(char) {
-        return identifierTypageType(char) || "?!-<>=0123456789".indexOf(char) >= 0;
-    }
+function identifierType(char) {
+    return identifierTypageType(char) || "?!-<>=0123456789".indexOf(char) >= 0;
+}
 
-    function operatorType(char) {
-        return "+-*/%=&|<>!".indexOf(char) >= 0;
-    }
+function operatorType(char) {
+    return "+-*/%=&|<>!".indexOf(char) >= 0;
+}
 
-    function punctuationType(char) {
-        return ",;(){}[]".indexOf(char) >= 0;
-    }
+function punctuationType(char) {
+    return ",;(){}[]".indexOf(char) >= 0;
+}
 
-    function indentationType(char) {
-        return " \t\n".indexOf(char) >= 0;
-    }
+function indentationType(char) {
+    return " \t\n".indexOf(char) >= 0;
 }
