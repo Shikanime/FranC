@@ -38,12 +38,11 @@ module.exports = function collectStream(codeRaw) {
     function nextChar() {
         let char = codeRaw.charAt(codePosition++);
 
-        // Check if that is the end of codeLine
+        // Switch to the next line
         if (char === '\n') {
             codeLine++;
             codeColumn = 0;
-        } else
-            codeColumn++;
+        } else codeColumn++;
 
         return char;
     }
@@ -78,7 +77,7 @@ module.exports = function collectStream(codeRaw) {
      * @param {string} message 
      */
     function errorMessage(message, source) {
-        console.error("[FrancaisJS] [Erreur]  " + message + " \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+        console.error("[FrancaisJS] [Erreur]  " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
     }
 
     /**
@@ -90,6 +89,6 @@ module.exports = function collectStream(codeRaw) {
      * @param {string} message 
      */
     function warningMessage(message, source) {
-        console.error("[FrancaisJS] [Warning] " + message + " \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+        console.error("[FrancaisJS] [Warning] " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
     }
 }

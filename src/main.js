@@ -1,6 +1,12 @@
 const explore = require("./system/system.explorer");
 
-codeEntry = `function(1+1);`;
+codeEntry = `
+sum = 1+1;
+function test(foo) {
+    foo + 1;
+}
+test(sum);
+`;
 
 var codeParsed = explore(codeEntry);
 

@@ -30,12 +30,12 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function nextToken() {
         // get the current peeked
-        var token = currentToken;
+        var currentToken = currentToken;
 
         // tell the next call to increment the stream
         currentToken = null;
 
-        return token ||
+        return currentToken ||
             readNextToken();
     }
 
@@ -93,7 +93,7 @@ module.exports = function tokenizeStream(codeInput) {
             value: extractWhilePattern(operatorType)
         };
 
-        codeInput.errorMessage("Impossible d'identifier ce caractere:", peekedChar);
+        codeInput.errorMessage("Impossible d'identifier ce caractere", peekedChar);
     }
 
     /**
@@ -105,14 +105,13 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function readNumber() {
-        let floatDot = false;
+        let float = false;
         let number = extractWhilePattern(function(currentChar) {
             // Float detection and skip the digit checker
             if (currentChar === '.') {
-
                 // Switcher
-                if (floatDot) return false;
-                floatDot = true;
+                if (float) return false;
+                float = true;
 
                 return true;
             }
@@ -135,7 +134,7 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function readIdentifier() {
         let identifier = extractWhilePattern(identifierType);
-
+        g
         return {
             type: keywordType(identifier) ? "keyword" : "variable",
             value: identifier
@@ -172,7 +171,7 @@ module.exports = function tokenizeStream(codeInput) {
     function extractWhilePattern(predicate) {
         let string = "";
 
-        while (!codeInput.endOfFile() && predicate(codeInput.nextChar())) {
+        while (!codeInput.endOfFile() && predicate(codeInput.peekChar())) {
             string += codeInput.nextChar();
         }
 
@@ -196,14 +195,13 @@ module.exports = function tokenizeStream(codeInput) {
 
         codeInput.nextChar();
         while (!codeInput.endOfFile()) {
-            let nextChar = codeInput.nextChar();
-
+            let currentChar = codeInput.nextChar();
             if (escaped) {
-                string += nextChar;
+                string += currentChar;
                 escaped = false;
-            } else if (nextChar === "\\") escaped = true;
-            else if (nextChar === endChar) break;
-            else string += nextChar;
+            } else if (currentChar === "\\") escaped = true;
+            else if (currentChar === endChar) break;
+            else string += currentChar;
         }
 
         return string;
