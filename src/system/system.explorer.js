@@ -1,5 +1,3 @@
-const lexe = require("./system.lexer");
-
 /**
  * Input stream object
  * 
@@ -17,13 +15,13 @@ module.exports = function collectStream(codeRaw) {
     var codeColumn = 0;
 
     // Return explorer tools
-    return lexe({
+    return {
         nextChar: nextChar,
         peekChar: peekChar,
         endOfFile: endOfFile,
         errorMessage: errorMessage,
         warningMessage: warningMessage
-    });
+    }
 
     /* TOOLS */
 

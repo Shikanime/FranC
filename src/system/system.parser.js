@@ -5,7 +5,6 @@
  * @returns {object}
  */
 module.exports = function parseStream(codeTokenized) {
-
     // Final code processing output.
     // The end of a long travel ^^
     return parseCode();
@@ -196,7 +195,7 @@ module.exports = function parseStream(codeTokenized) {
             }
 
             // Variables stockage
-            var currentToken = codeTokenized.nextToken();
+            let currentToken = codeTokenized.nextToken();
             if (currentToken.type === "variable" ||
                 currentToken.type === "number" ||
                 currentToken.type === "string")

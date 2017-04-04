@@ -1,13 +1,20 @@
 const explore = require("./system/system.explorer");
+const lexe = require("./system/system.lexer");
+const parse = require("./system/system.parser");
 
-codeEntry = `
-sum = 1+1;
-function test(foo) {
-    foo + 1;
-}
-test(sum);
-`;
+codeEntry = "sum = 1+1;";
 
-var codeParsed = explore(codeEntry);
+// let codeParsed = parse(lexe(explore(codeEntry)));
 
-console.log(codeParsed);
+// console.log(codeParsed);
+
+var test = lexe(explore(codeEntry));
+
+console.log(test.nextToken());
+console.log(test.nextToken());
+console.log(test.nextToken());
+console.log(test.nextToken());
+console.log(test.nextToken());
+console.log(test.nextToken());
+console.log(test.nextToken());
+console.log(test.nextToken());

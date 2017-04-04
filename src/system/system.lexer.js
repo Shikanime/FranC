@@ -1,5 +1,3 @@
-const parse = require("./system.parser");
-
 /**
  * Tokenize stream object
  * 
@@ -13,13 +11,13 @@ module.exports = function tokenizeStream(codeInput) {
     var currentToken = null;
 
     // Returning explorer tools
-    return parse({
+    return {
         nextToken: nextToken,
         peekToken: peekToken,
         endOfFile: endOfFile,
         errorMessage: codeInput.errorMessage,
         warningMessage: codeInput.warningMessage
-    })
+    }
 
     /* TOOLS */
 
@@ -119,10 +117,12 @@ module.exports = function tokenizeStream(codeInput) {
             return digitalType(currentChar);
         });
 
-        return {
+        console.log((token = {
             type: "number",
             value: parseFloat(number)
-        };
+        }));
+
+        return token;
     }
 
     /**
@@ -134,11 +134,13 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function readIdentifier() {
         let identifier = extractWhilePattern(identifierType);
-        g
-        return {
+
+        console.log((token = {
             type: keywordType(identifier) ? "keyword" : "variable",
             value: identifier
-        };
+        }));
+
+        return token;
     }
 
     /* 化物語の羽川翼 */
@@ -149,10 +151,12 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function readString() {
-        return {
+        console.log((token = {
             type: "string",
             value: extractUntilChar('"')
-        };
+        }));
+
+        return token;
     }
 
     /* EXTRACTOR HELPERS */
