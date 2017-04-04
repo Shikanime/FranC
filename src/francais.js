@@ -1,7 +1,7 @@
-const explore = require("./system/system.explorer");
-const lexe = require("./system/system.lexer");
-const parse = require("./system/system.parser");
-const debug = require("./system/system.debugger");
+const explore = require("./app/app.explorer");
+const lexe = require("./app/app.lexer");
+const parse = require("./app/app.parser");
+const debug = require("./app/app.debugger");
 
 const francais = {
     interprete: function(codeEntry) {

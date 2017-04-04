@@ -157,7 +157,7 @@ module.exports = function parseStream(codeTokenized) {
      */
     function parseExpression() {
         return detectCall(() => {
-            return detectBinary(dispatch(), 0);
+            return detectCalculation(dispatch(), 0);
         })
     }
 
@@ -213,14 +213,14 @@ module.exports = function parseStream(codeTokenized) {
     /**
      * Precedence distribution for calculation
      * 
-     * That check the binary operator's precedence and
+     * That check the calculation operator precedence and
      * check the next part of the calcul recursively.
      * 
      * @param {string} leftSide 
      * @param {integer} previousTokenPrecedence 
      * @returns {object} 
      */
-    function detectBinary(leftSide, previousTokenPrecedence) {
+    function detectCalculation(leftSide, previousTokenPrecedence) {
         // This little guy check for te current token in stream, no specified element.
         let currentToken = checkTokenType("operator", null);
 
@@ -246,11 +246,11 @@ module.exports = function parseStream(codeTokenized) {
             if (tokenPrecedence > previousTokenPrecedence) {
                 codeTokenized.nextToken();
 
-                return detectBinary({
-                    type: currentToken.value === "=" ? "assign" : "binary",
+                return detectCalculation({
+                    type: currentToken.value === "=" ? "assign" : "calculation",
                     operator: currentToken.value,
                     leftSide: leftSide,
-                    rightSide: detectBinary(dispatch(), tokenPrecedence)
+                    rightSide: detectCalculation(dispatch(), tokenPrecedence)
                 }, previousTokenPrecedence);
             }
         }

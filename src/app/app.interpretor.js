@@ -1,3 +1,7 @@
-const explore = require("./system/system.explorer");
-const lexe = require("./system/system.lexer");
-const parse = require("./system/system.parser");
+const explore = require("./app/app.explorer");
+const lexe = require("./app/app.lexer");
+const parse = require("./app/app.parser");
+
+module.exports = function() {
+
+}
