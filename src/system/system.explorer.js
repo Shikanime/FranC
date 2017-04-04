@@ -20,7 +20,8 @@ module.exports = function collectStream(codeRaw) {
         peekChar: peekChar,
         endOfFile: endOfFile,
         errorMessage: errorMessage,
-        warningMessage: warningMessage
+        warningMessage: warningMessage,
+        debug: debug
     }
 
     /* TOOLS */
@@ -88,5 +89,16 @@ module.exports = function collectStream(codeRaw) {
      */
     function warningMessage(message, source) {
         console.error("[FrancaisJS] [Warning] " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+    }
+
+    /**
+     * Debug handler
+     * 
+     * Exclusivelly used in dev
+     * 
+     * @param {string} message 
+     */
+    function debugMessage(data) {
+        console.error("[FrancaisJS] [Debug] " + data + " (" + codeLine + ":" + codeColumn + ")");
     }
 }

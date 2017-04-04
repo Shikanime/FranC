@@ -117,12 +117,10 @@ module.exports = function tokenizeStream(codeInput) {
             return digitalType(currentChar);
         });
 
-        console.log((token = {
+        return {
             type: "number",
             value: parseFloat(number)
-        }));
-
-        return token;
+        };
     }
 
     /**
@@ -135,12 +133,10 @@ module.exports = function tokenizeStream(codeInput) {
     function readIdentifier() {
         let identifier = extractWhilePattern(identifierType);
 
-        console.log((token = {
+        return {
             type: keywordType(identifier) ? "keyword" : "variable",
             value: identifier
-        }));
-
-        return token;
+        };
     }
 
     /* 化物語の羽川翼 */
@@ -151,12 +147,10 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function readString() {
-        console.log((token = {
+        return {
             type: "string",
             value: extractUntilChar('"')
-        }));
-
-        return token;
+        };
     }
 
     /* EXTRACTOR HELPERS */

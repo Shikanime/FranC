@@ -8,13 +8,23 @@ codeEntry = "sum = 1+1;";
 
 // console.log(codeParsed);
 
-var test = lexe(explore(codeEntry));
+//debugLexer();
+debugExplorer();
 
-console.log(test.nextToken());
-console.log(test.nextToken());
-console.log(test.nextToken());
-console.log(test.nextToken());
-console.log(test.nextToken());
-console.log(test.nextToken());
-console.log(test.nextToken());
-console.log(test.nextToken());
+function debugLexer() {
+    let lexedCode = lexe(explore(codeEntry));
+
+    while(!lexedCode.endOfFile()) {
+        console.log(lexedCode.nextToken());
+    }
+    lexedCode.warningMessage("Utiliser le debugger qu'en developpement");
+}
+
+function debugExplorer() {
+    let explorerCode = explore(codeEntry);
+
+    while(!explorerCode.endOfFile()) {
+        console.log(explorerCode.nextChar());
+    }
+    explorerCode.warningMessage("Utiliser le debugger qu'en developpement");
+}
