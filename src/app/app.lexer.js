@@ -226,7 +226,7 @@ module.exports = function tokenizeStream(codeInput) {
 /* VERIFICATION HELPER LAYERS */
 
 function keywordType(string) {
-    return "if;then;else;function;true;false;".indexOf(string + ';') >= 0;
+    return "si;alors;ou;fonction;vrai;faux;".indexOf(string + ';') >= 0;
 }
 
 function digitalType(char) {

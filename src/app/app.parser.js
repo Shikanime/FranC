@@ -35,11 +35,11 @@ module.exports = function parseStream(codeTokenized) {
      * @return {object}
      */
     function parseIf() {
-        passToken("keyword", "if");
+        passToken("keyword", "si");
 
         let condition = parseExpression();
         // I love small tricks
-        if (!checkTokenType("punctuation", '{')) passToken("keyword", "then");
+        if (!checkTokenType("punctuation", '{')) passToken("keyword", "alors");
         let output = {
             type: "if",
             condition: condition,
@@ -47,10 +47,10 @@ module.exports = function parseStream(codeTokenized) {
         };
 
         // Detect if there is another content
-        if (checkTokenType("keyword", "else")) {
+        if (checkTokenType("keyword", "ou")) {
             codeTokenized.nextToken();
             output.elseContent = parseExpression();
-        };
+        }
 
         return output;
     }
@@ -183,11 +183,11 @@ module.exports = function parseStream(codeTokenized) {
             if (checkTokenType("punctuation", '{')) return parseProgram();
 
             // Keyword
-            if (checkTokenType("keyword", "if")) return parseIf();
-            if (checkTokenType("keyword", "true") ||
-                checkTokenType("keyword", "false"))
+            if (checkTokenType("keyword", "si")) return parseIf();
+            if (checkTokenType("keyword", "vrai") ||
+                checkTokenType("keyword", "faux"))
                 return parseBoolean();
-            if (checkTokenType("keyword", "function")) {
+            if (checkTokenType("keyword", "fonction")) {
                 codeTokenized.nextToken();
                 return parseFunction();
             }

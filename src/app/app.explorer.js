@@ -76,7 +76,7 @@ module.exports = function collectStream(codeRaw) {
      * @param {any} source 
      */
     function errorMessage(message, source) {
-        console.error("[FrancaisJS] [Erreur]  " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+        console.error(message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
     }
 
     /**
@@ -88,7 +88,7 @@ module.exports = function collectStream(codeRaw) {
      * @param {string} message 
      */
     function warningMessage(message, source) {
-        if (source) console.error("[FrancaisJS] [Warning] " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
-        else console.error("[FrancaisJS] [Warning] " + message);
+        if (source) console.warn(message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+        else console.warn(message);
     }
 };

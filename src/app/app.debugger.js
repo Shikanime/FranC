@@ -29,7 +29,7 @@ module.exports = function debug(debugLevel, sourceCode) {
      */
     function debugExplorer() {
         let codeExplorer = code;
-        while (!codeExplorer.endOfFile()) console.log(codeExplorer.nextChar());
+        while (!codeExplorer.endOfFile()) console.debug(codeExplorer.nextChar());
         code.warningMessage("Utiliser le debugger uniquement en developpement");
     }
 
@@ -38,7 +38,7 @@ module.exports = function debug(debugLevel, sourceCode) {
      */
     function debugLexer() {
         let codeLexer = lexe(code);
-        while (!codeLexer.endOfFile()) console.log(codeLexer.nextToken());
+        while (!codeLexer.endOfFile()) console.debug(codeLexer.nextToken());
         code.warningMessage("Utiliser le debugger uniquement en developpement");
     }
 
@@ -47,7 +47,7 @@ module.exports = function debug(debugLevel, sourceCode) {
      */
     function debugParser() {
         let codeParser = parse(lexe(code));
-        console.log(util.inspect(codeParser, {
+        console.debug(util.inspect(codeParser, {
             showHidden: false,
             depth: null
         }));
