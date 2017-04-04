@@ -1,25 +1,25 @@
 {
-  "name": "my_lang",
-  "version": "0.0.0",
-  "description": "A lambda language on internet",
-  "main": "src/main.js",
-  "scripts": {
-    "start": "node src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/Shikanime/my_lang.git"
-  },
-  "keywords": [
-    "language"
-  ],
-  "author": "Shikanime",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Shikanime/my_lang/issues"
-  },
-  "dependencies": {
-    "console-stamp": "^0.2.5"
-  }
+    "name": "francaisjs",
+    "version": "0.0.0",
+    "description": "A lambda language on internet",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/francais.js",
+        "test": "node src/test.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/Shikanime/francaisjs.git"
+    },
+    "keywords": [
+        "language"
+    ],
+    "author": "Shikanime",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Shikanime/my_lang/issues"
+    },
+    "dependencies": {
+        "console-stamp": "^0.2.5"
+    }
 }
