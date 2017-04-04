@@ -6,9 +6,7 @@
  */
 module.exports = function parseStream(codeTokenized) {
     // Final code processing output.
-    // The end of a long travel ^^
     return parseCode();
-
     /* MAIN PARSER */
 
     /**

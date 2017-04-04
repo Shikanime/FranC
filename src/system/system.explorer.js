@@ -8,11 +8,11 @@
  * @returns {object}
  */
 module.exports = function collectStream(codeRaw) {
-    var codePosition = 0;
+    let codePosition = 0;
 
     // Variables for error handler debugging
-    var codeLine = 1;
-    var codeColumn = 0;
+    let codeLine = 1;
+    let codeColumn = 0;
 
     // Return explorer tools
     return {
@@ -20,9 +20,8 @@ module.exports = function collectStream(codeRaw) {
         peekChar: peekChar,
         endOfFile: endOfFile,
         errorMessage: errorMessage,
-        warningMessage: warningMessage,
-        debug: debug
-    }
+        warningMessage: warningMessage
+    };
 
     /* TOOLS */
 
@@ -74,6 +73,7 @@ module.exports = function collectStream(codeRaw) {
      * The code reading crashing, we can't continue.
      * 
      * @param {string} message 
+     * @param {any} source 
      */
     function errorMessage(message, source) {
         console.error("[FrancaisJS] [Erreur]  " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
@@ -88,17 +88,7 @@ module.exports = function collectStream(codeRaw) {
      * @param {string} message 
      */
     function warningMessage(message, source) {
-        console.error("[FrancaisJS] [Warning] " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+        if (source) console.error("[FrancaisJS] [Warning] " + message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+        else console.error("[FrancaisJS] [Warning] " + message);
     }
-
-    /**
-     * Debug handler
-     * 
-     * Exclusivelly used in dev
-     * 
-     * @param {string} message 
-     */
-    function debugMessage(data) {
-        console.error("[FrancaisJS] [Debug] " + data + " (" + codeLine + ":" + codeColumn + ")");
-    }
-}
+};

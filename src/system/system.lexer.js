@@ -8,7 +8,7 @@
  * @returns {object}
  */
 module.exports = function tokenizeStream(codeInput) {
-    var currentToken = null;
+    let currentToken = null;
 
     // Returning explorer tools
     return {
@@ -16,8 +16,8 @@ module.exports = function tokenizeStream(codeInput) {
         peekToken: peekToken,
         endOfFile: endOfFile,
         errorMessage: codeInput.errorMessage,
-        warningMessage: codeInput.warningMessage
-    }
+        warningMessage: codeInput.warningMessage,
+    };
 
     /* TOOLS */
 
@@ -28,12 +28,12 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function nextToken() {
         // get the current peeked
-        var currentToken = currentToken;
+        let peekedToken = currentToken;
 
         // tell the next call to increment the stream
         currentToken = null;
 
-        return currentToken ||
+        return peekedToken ||
             readNextToken();
     }
 
@@ -221,7 +221,7 @@ module.exports = function tokenizeStream(codeInput) {
 
         return readNextToken();
     }
-}
+};
 
 /* VERIFICATION HELPER LAYERS */
 
