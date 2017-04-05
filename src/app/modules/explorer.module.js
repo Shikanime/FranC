@@ -1,3 +1,5 @@
+const messageModule = require("./message.module");
+
 /**
  * Input stream object
  * 
@@ -14,13 +16,17 @@ module.exports = function(codeRaw) {
     let codeLine = 1;
     let codeColumn = 0;
 
+    if (endOfFile()) messageModule.warning("Pas de code");
+
     // Return explorer tools
     return {
         nextChar: nextChar,
         peekChar: peekChar,
         endOfFile: endOfFile,
-        errorMessage: errorMessage,
-        warningMessage: warningMessage
+        position: {
+            line: lineParameter,
+            column: columnParameter
+        }
     };
 
     /* TOOLS */
@@ -67,28 +73,11 @@ module.exports = function(codeRaw) {
         return peekChar() === "";
     }
 
-    /**
-     * Error handler
-     * 
-     * The code reading crashing, we can't continue.
-     * 
-     * @param {string} message 
-     * @param {any} source 
-     */
-    function errorMessage(message, source) {
-        console.error(message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
+    function lineParameter() {
+        return codeLine;
     }
 
-    /**
-     * Warning handler
-     * 
-     * The diffrence here is that the program can work
-     * but we can do better.
-     * 
-     * @param {string} message 
-     */
-    function warningMessage(message, source) {
-        if (source) console.warn(message + ": \"" + source + "\"" + " (" + codeLine + ":" + codeColumn + ")");
-        else console.warn(message);
+    function columnParameter() {
+        return codeColumn;
     }
 };

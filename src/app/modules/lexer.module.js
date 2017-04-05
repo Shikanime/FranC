@@ -1,3 +1,5 @@
+const messageModule = require("./message.module");
+
 /**
  * Tokenize stream object
  * 
@@ -15,8 +17,7 @@ module.exports = function(codeInput) {
         nextToken: nextToken,
         peekToken: peekToken,
         endOfFile: endOfFile,
-        errorMessage: codeInput.errorMessage,
-        warningMessage: codeInput.warningMessage,
+        position: codeInput.position
     };
 
     /* TOOLS */
@@ -82,20 +83,38 @@ module.exports = function(codeInput) {
 
         // Sementic detection
         if (identifierTypageType(peekedChar)) return readIdentifier();
-        if (punctuationType(peekedChar)) return {
-            type: "punctuation",
-            value: codeInput.nextChar()
-        };
-        if (operatorType(peekedChar)) return {
-            type: "operator",
-            value: extractWhilePattern(operatorType)
-        };
+        if (punctuationType(peekedChar)) return readPunctuation();
+        if (operatorType(peekedChar)) return readOperator();
 
-        codeInput.errorMessage("Impossible d'identifier ce caractere", peekedChar);
+        messageModule.error("Impossible d'identifier ce caractere", peekedChar, codeInput.position);
     }
 
     /**
-     * Parse number (integer and float detection)
+     * Read punctuation
+     * 
+     * @return {object}
+     */
+    function readPunctuation() {
+        return {
+            type: "ponctuation",
+            value: codeInput.nextChar()
+        };
+    }
+
+    /**
+     * Read operator
+     * 
+     * @return {object}
+     */
+    function readOperator() {
+        return {
+            type: "operateur",
+            value: extractWhilePattern(operatorType)
+        };
+    }
+
+    /**
+     * Read number (integer and float detection)
      * 
      * This language doesn't support scientific notation or
      * Hexadecimal.
@@ -118,13 +137,13 @@ module.exports = function(codeInput) {
         });
 
         return {
-            type: "number",
+            type: "nombre",
             value: parseFloat(number)
         };
     }
 
     /**
-     * Parse identifier
+     * Read identifier
      * 
      * Identify keyword in code.
      * 
@@ -134,7 +153,7 @@ module.exports = function(codeInput) {
         let identifier = extractWhilePattern(identifierType);
 
         return {
-            type: keywordType(identifier) ? "keyword" : "variable",
+            type: keywordType(identifier) ? "mot-cle" : "variable",
             value: identifier
         };
     }
@@ -142,13 +161,13 @@ module.exports = function(codeInput) {
     /* 化物語の羽川翼 */
 
     /**
-     * Parse string
+     * Read string
      * 
      * @returns {object}
      */
     function readString() {
         return {
-            type: "string",
+            type: "chaine",
             value: extractUntilChar('"')
         };
     }

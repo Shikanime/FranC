@@ -1,5 +1,6 @@
 const interprete = require("./app/app.interpretor");
 const debug = require("./app/app.debugger");
+const consoleStamp = require('console-stamp');
 
 const francais = {
     interprete: interprete,
@@ -10,14 +11,9 @@ console.debug = function(message) {
     console.log(message);
 };
 
-console.error = function(message) {
-    console.error(message);
-    process.exit(1);
-};
-
-require('console-stamp')(console, {
+consoleStamp(console, {
     pattern: "HH:MM:ss",
-    metadata: () => {
+    metadata: function() {
         return ("[" + process.memoryUsage().rss + "]");
     },
     colors: {
