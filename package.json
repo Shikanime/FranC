@@ -5,7 +5,7 @@
     "main": "src/main.js",
     "scripts": {
         "start": "node src/francais.js",
-        "test": "node src/test.js"
+        "exemple": "node src/exemple.js"
     },
     "repository": {
         "type": "git",
