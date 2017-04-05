@@ -1,10 +1,15 @@
 const francais = require("./francais");
 
-codeEntry = "si foo alors bar ou baz;";
+codeEntry = "fonction (foo, bar) si foo alors bar ou baz;";
 
 let treatedCode = francais.interprete(codeEntry);
 
 // Debugger
-//francais.debug("explorer", codeEntry);
-//francais.debug("lexer", codeEntry);
-francais.debug("parser", codeEntry);
+let codeDebugger = francais.debug(codeEntry);
+console.log('\n');
+codeDebugger.explorer();
+console.log('\n');
+codeDebugger.lexer();
+console.log('\n');
+codeDebugger.parser();
+console.log('\n');

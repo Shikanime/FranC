@@ -1,12 +1,8 @@
-const explore = require("./app/app.explorer");
-const lexe = require("./app/app.lexer");
-const parse = require("./app/app.parser");
+const interprete = require("./app/app.interpretor");
 const debug = require("./app/app.debugger");
 
 const francais = {
-    interprete: function(codeEntry) {
-        parse(lexe(explore(codeEntry)));
-    },
+    interprete: interprete,
     debug: debug
 };
 

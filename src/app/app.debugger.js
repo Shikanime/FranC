@@ -1,17 +1,15 @@
-const explore = require("./app.explorer");
-const lexe = require("./app.lexer");
-const parse = require("./app.parser");
+const explore = require("./modules/explorer.module");
+const lexe = require("./modules/lexer.module");
+const parse = require("./modules/parser.module");
 const util = require('util');
 
 /**
  * Debugger
  * 
- * @param {string} debugLevel 
  * @param {any} sourceCode 
+ * @returns {object}
  */
-module.exports = function (sourceCode) {
-    let code = explore(sourceCode);
-
+module.exports = function(sourceCode) {
     return {
         explorer: explorer,
         lexer: lexer,
@@ -19,32 +17,29 @@ module.exports = function (sourceCode) {
     };
 
     /**
-     * Debug the raw code
+     * Debug the code explorer tools
      */
     function explorer() {
-        let codeExplorer = code;
+        let codeExplorer = explore(sourceCode);
         while (!codeExplorer.endOfFile()) console.debug(codeExplorer.nextChar());
-        code.warningMessage("Utiliser le debugger uniquement en developpement");
     }
 
     /**
-     * Debug the tokenized code
+     * Debug the code tokenizer tools
      */
     function lexer() {
-        let codeLexer = lexe(code);
+        let codeLexer = lexe(explore(sourceCode));
         while (!codeLexer.endOfFile()) console.debug(codeLexer.nextToken());
-        code.warningMessage("Utiliser le debugger uniquement en developpement");
     }
 
     /**
      * Debug the parsed code
      */
     function parser() {
-        let codeParser = parse(lexe(code));
-        console.debug(util.inspect(codeParser, {
-            showHidden: false,
+        let codeParsed = parse(lexe(explore(sourceCode)));
+        console.debug(util.inspect(codeParsed, {
+            showHidden: true,
             depth: null
         }));
-        code.warningMessage("Utiliser le debugger uniquement en developpement");
     }
 };

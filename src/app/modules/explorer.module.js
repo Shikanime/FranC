@@ -7,7 +7,7 @@
  * @param {string} codeRaw 
  * @returns {object}
  */
-module.exports = function codeExplorer(codeRaw) {
+module.exports = function(codeRaw) {
     let codePosition = 0;
 
     // Variables for error handler debugging

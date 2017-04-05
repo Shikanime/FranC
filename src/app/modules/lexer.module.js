@@ -7,7 +7,7 @@
  * @param {string} code 
  * @returns {object}
  */
-module.exports = function codeLexer(codeInput) {
+module.exports = function(codeInput) {
     let currentToken = null;
 
     // Returning explorer tools
