@@ -7,7 +7,7 @@
  * @param {string} codeRaw 
  * @returns {object}
  */
-module.exports = function collectStream(codeRaw) {
+module.exports = function codeExplorer(codeRaw) {
     let codePosition = 0;
 
     // Variables for error handler debugging

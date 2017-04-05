@@ -7,7 +7,7 @@
  * @param {string} code 
  * @returns {object}
  */
-module.exports = function tokenizeStream(codeInput) {
+module.exports = function codeLexer(codeInput) {
     let currentToken = null;
 
     // Returning explorer tools

@@ -9,25 +9,19 @@ const util = require('util');
  * @param {string} debugLevel 
  * @param {any} sourceCode 
  */
-module.exports = function debug(debugLevel, sourceCode) {
+module.exports = function (sourceCode) {
     let code = explore(sourceCode);
 
-    switch (debugLevel) {
-        case "explorer":
-            debugExplorer();
-            break;
-        case "lexer":
-            debugLexer();
-            break;
-        case "parser":
-            debugParser();
-            break;
-    }
+    return {
+        explorer: explorer,
+        lexer: lexer,
+        parser: parser
+    };
 
     /**
      * Debug the raw code
      */
-    function debugExplorer() {
+    function explorer() {
         let codeExplorer = code;
         while (!codeExplorer.endOfFile()) console.debug(codeExplorer.nextChar());
         code.warningMessage("Utiliser le debugger uniquement en developpement");
@@ -36,7 +30,7 @@ module.exports = function debug(debugLevel, sourceCode) {
     /**
      * Debug the tokenized code
      */
-    function debugLexer() {
+    function lexer() {
         let codeLexer = lexe(code);
         while (!codeLexer.endOfFile()) console.debug(codeLexer.nextToken());
         code.warningMessage("Utiliser le debugger uniquement en developpement");
@@ -45,7 +39,7 @@ module.exports = function debug(debugLevel, sourceCode) {
     /**
      * Debug the parsed code
      */
-    function debugParser() {
+    function parser() {
         let codeParser = parse(lexe(code));
         console.debug(util.inspect(codeParser, {
             showHidden: false,

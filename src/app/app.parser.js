@@ -4,7 +4,7 @@
  * @param {string} code 
  * @returns {object}
  */
-module.exports = function parseStream(codeTokenized) {
+module.exports = function codeParser(codeTokenized) {
     // Final code processing output.
     return parseCode();
     /* MAIN PARSER */
