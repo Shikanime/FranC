@@ -1,6 +1,9 @@
-const explorerModule = require("./modules/explorer.module");
-const lexerModule = require("./modules/lexer.module");
-const parserModule = require("./modules/parser.module");
+const explorerEngine = require("./engine/explorer.engine");
+const lexerEngine = require("./engine/lexer.engine");
+const parserEngine = require("./engine/parser.engine");
+const evaluatorEngine = require("./engine/evaluator.engine");
+const calculatorEngine = require("./engine/calculator.engine");
+const variableEnvironmentModule = require("./modules/environement.module");
 const util = require('util');
 
 /**
@@ -20,24 +23,27 @@ module.exports = function(sourceCode) {
      * Debug the code explorer tools
      */
     function explorer() {
-        let codeExplorer = explorerModule(sourceCode);
-        while (!codeExplorer.endOfFile()) console.debug(codeExplorer.nextChar());
+        let codeExplorer = explorerEngine(sourceCode);
+        console.debug("Debug explorer:");
+        while (!codeExplorer.endOfFile()) console.log(codeExplorer.nextChar());
     }
 
     /**
      * Debug the code tokenizer tools
      */
     function lexer() {
-        let codeLexer = lexerModule(explorerModule(sourceCode));
-        while (!codeLexer.endOfFile()) console.debug(codeLexer.nextToken());
+        let codeLexer = lexerEngine(explorerEngine(sourceCode));
+        console.debug("Debug lexer:");
+        while (!codeLexer.endOfFile()) console.log(codeLexer.nextToken());
     }
 
     /**
      * Debug the parsed code
      */
     function parser() {
-        let codeParsed = parserModule(lexerModule(explorerModule(sourceCode)));
-        console.debug(util.inspect(codeParsed, {
+        let codeParsed = parserEngine(lexerEngine(explorerEngine(sourceCode)));
+        console.debug("Debug parser:");
+        console.log(util.inspect(codeParsed, {
             showHidden: true,
             depth: null
         }));

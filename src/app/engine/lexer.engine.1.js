@@ -1,4 +1,5 @@
-const messageModule = require("./message.module");
+const messageModule = require("../modules/message.module");
+const checkerModule = require("../modules/checker.module");
 
 /**
  * Tokenize stream object
@@ -9,7 +10,7 @@ const messageModule = require("./message.module");
  * @param {string} code 
  * @returns {object}
  */
-module.exports = function(codeInput) {
+module.exports = function codeLexer(codeInput) {
     let currentToken = null;
 
     // Returning explorer tools
@@ -67,7 +68,7 @@ module.exports = function(codeInput) {
      */
     function readNextToken() {
         // Skip your beautiful coding convention and line, norage de mon panage.
-        extractWhilePattern(indentationType);
+        extractWhilePattern(checkerModule.indentation);
 
         // Quit the loop here
         if (codeInput.endOfFile()) return null;
@@ -79,12 +80,12 @@ module.exports = function(codeInput) {
 
         // Data type detection
         if (peekedChar === '"') return readString();
-        if (digitalType(peekedChar)) return readNumber();
+        if (checkerModule.digital(peekedChar)) return readNumber();
 
         // Sementic detection
-        if (identifierTypageType(peekedChar)) return readIdentifier();
-        if (punctuationType(peekedChar)) return readPunctuation();
-        if (operatorType(peekedChar)) return readOperator();
+        if (checkerModule.identifierTypage(peekedChar)) return readIdentifier();
+        if (checkerModule.punctuation(peekedChar)) return readPunctuation();
+        if (checkerModule.operator(peekedChar)) return readOperator();
 
         messageModule.error("Impossible d'identifier ce caractere", peekedChar, codeInput.position);
     }
@@ -109,7 +110,7 @@ module.exports = function(codeInput) {
     function readOperator() {
         return {
             type: "operateur",
-            value: extractWhilePattern(operatorType)
+            value: extractWhilePattern(checkerModule.operator)
         };
     }
 
@@ -133,7 +134,7 @@ module.exports = function(codeInput) {
                 return true;
             }
 
-            return digitalType(currentChar);
+            return checkerModule.digital(currentChar);
         });
 
         return {
@@ -150,10 +151,10 @@ module.exports = function(codeInput) {
      * @returns {object}
      */
     function readIdentifier() {
-        let identifier = extractWhilePattern(identifierType);
+        let identifier = extractWhilePattern(checkerModule.identifier);
 
         return {
-            type: keywordType(identifier) ? "mot-cle" : "variable",
+            type: checkerModule.keyword(identifier) ? "mot-cle" : "variable",
             value: identifier
         };
     }
@@ -241,33 +242,3 @@ module.exports = function(codeInput) {
         return readNextToken();
     }
 };
-
-/* VERIFICATION HELPER LAYERS */
-
-function keywordType(string) {
-    return "si;alors;ou;fonction;vrai;faux;".indexOf(string + ';') >= 0;
-}
-
-function digitalType(char) {
-    return /[0-9]/i.test(char);
-}
-
-function identifierTypageType(char) {
-    return /[a-z_]/i.test(char);
-}
-
-function identifierType(char) {
-    return identifierTypageType(char) || "?!-<>=0123456789".indexOf(char) >= 0;
-}
-
-function operatorType(char) {
-    return "+-*/%=&|<>!".indexOf(char) >= 0;
-}
-
-function punctuationType(char) {
-    return ",;(){}[]".indexOf(char) >= 0;
-}
-
-function indentationType(char) {
-    return " \t\n".indexOf(char) >= 0;
-}

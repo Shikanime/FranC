@@ -1,4 +1,4 @@
-const messageModule = require("./message.module");
+const messageModule = require("../modules/message.module");
 
 /**
  * Parse stream object
@@ -194,8 +194,6 @@ module.exports = function(codeTokenized) {
                 checkTokenType("mot-cle", "faux")) return parseBoolean();
             if (checkTokenType("mot-cle", "fonction")) return parseFunction();
 
-            // TO DO: integrate it on the universal checker, 
-            // because the function can't check variable value.
             // Variables stockage
             let currentToken = codeTokenized.nextToken();
             if (currentToken.type === "variable" ||
@@ -271,7 +269,8 @@ module.exports = function(codeTokenized) {
         var token = codeTokenized.peekToken();
         return token &&
             token.type === type &&
-            (!element || token.value === element);
+            (!element || token.value === element) &&
+            token;
     }
 
     /**

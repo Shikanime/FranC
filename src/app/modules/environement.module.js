@@ -1,21 +1,23 @@
 const messageModule = require("./message.module");
 
 /**
- * Variables stockage environement and scoping setting
+ * Variables stockage environement and scoping object
  */
-module.exports = function Environment() {
-    this.variables = Object.create(parent ? parent.vars : null);
-    this.parent = parent;
-}.prototype = {
+function VariableEnvironmentModule(parentScope) {
+    this.variables = Object.create(parentScope ? parent.vars : null);
+    this.parentScope = parentScope;
+}
+
+VariableEnvironmentModule.prototype = {
     appendScope: function() {
-        return new Environment(this);
+        return new VariableEnvironmentModule(this);
     },
     lookup: function(name) {
         let scope = this;
 
         while (scope) {
             if (Object.prototype.hasOwnProperty.call(scope.variables, name)) return scope;
-            scope = scope.parent;
+            scope = scope.parentScope;
         }
     },
     get: function(name) {
@@ -26,11 +28,13 @@ module.exports = function Environment() {
         let scope = this.lookup(name);
 
         if (!scope &&
-            this.parent)
+            this.parentScope)
             console.error("variables indefini", name);
         return (scope || this).variables[name] = value;
     },
     define: function(name, value) {
-        return this.vars[name] = value;
+        return this.variables[name] = value;
     }
 }
+
+module.exports = VariableEnvironmentModule;

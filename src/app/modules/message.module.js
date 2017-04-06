@@ -1,12 +1,22 @@
-module.exports = function() {}.prototype = {
+/**
+ * Message handler
+ */
+let messageModule = {
     error: function(message, source, position) {
-        if (position) console.error(message + ": \"" + source + "\"" + " (" + position.line() + ":" + position.column() + ")");
-        else if (source) console.error(message + ": \"" + source + "\"");
-        else console.error(message);
+        console.error(consoleMessage(message, source, position));
     },
     warning: function(message, source, position) {
-        if (position) console.warn(message + ": \"" + source + "\"" + " (" + position.line() + ":" + position.column() + ")");
-        else if (source) console.warn(message + ": \"" + source + "\"");
-        else console.warn(message);
+        console.warn(consoleMessage(consoleOutput));
     }
 }
+
+function consoleMessage(message, source, position) {
+    let consoleOutput = message;
+
+    if (source) consoleOutput += ": \"" + source + "\"";
+    if (position) consoleOutput += " (" + position.line() + ":" + position.column() + ")";
+
+    return consoleOutput;
+}
+
+module.exports = messageModule;

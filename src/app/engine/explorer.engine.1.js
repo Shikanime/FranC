@@ -1,4 +1,4 @@
-const messageModule = require("./message.module");
+const messageModule = require("../modules/message.module");
 
 /**
  * Input stream object
@@ -9,7 +9,7 @@ const messageModule = require("./message.module");
  * @param {string} codeRaw 
  * @returns {object}
  */
-module.exports = function(codeRaw) {
+module.exports = function CodeExplorer(codeRaw) {
     let codePosition = 0;
 
     // Variables for error handler debugging
