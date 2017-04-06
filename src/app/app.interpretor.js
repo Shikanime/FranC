@@ -14,12 +14,16 @@ const util = require("util");
  */
 module.exports = function(sourceCode) {
     let abstractSyntaxTree = parserEngine(lexerEngine(explorerEngine(sourceCode)));
-    console.log(abstractSyntaxTree);
-    // let environement = new variableEnvironmentModule();
 
-    // environement.define("afficher", function(val) {
-    //     util.print(val);
-    // });
+    let environement = new variableEnvironmentModule();
 
-    // evaluatorEngine(abstractSyntaxTree, variablesBox);
+    console.log(util.inspect(abstractSyntaxTree, {
+        showHidden: true,
+        depth: null
+    }));
+    environement.define("afficher", function(val) {
+        util.print(val);
+    });
+
+    evaluatorEngine(abstractSyntaxTree, environement);
 }

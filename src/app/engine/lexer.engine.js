@@ -1,6 +1,5 @@
 const messageModule = require("../modules/message.module");
 const checkerModule = require("../modules/checker.module");
-
 /**
  * Tokenize stream object
  * 
@@ -10,7 +9,7 @@ const checkerModule = require("../modules/checker.module");
  * @param {string} code 
  * @returns {object}
  */
-module.exports = function codeLexer(codeInput) {
+module.exports = function tokenizeStream(codeInput) {
     let currentToken = null;
 
     // Returning explorer tools
@@ -84,38 +83,20 @@ module.exports = function codeLexer(codeInput) {
 
         // Sementic detection
         if (checkerModule.identifierTypage(peekedChar)) return readIdentifier();
-        if (checkerModule.punctuation(peekedChar)) return readPunctuation();
-        if (checkerModule.operator(peekedChar)) return readOperator();
+        if (checkerModule.punctuation(peekedChar)) return {
+            type: "punctuation",
+            value: codeInput.nextChar()
+        };
+        if (checkerModule.operator(peekedChar)) return {
+            type: "operator",
+            value: extractWhilePattern(checkerModule.operator)
+        };
 
         messageModule.error("Impossible d'identifier ce caractere", peekedChar, codeInput.position);
     }
 
     /**
-     * Read punctuation
-     * 
-     * @return {object}
-     */
-    function readPunctuation() {
-        return {
-            type: "ponctuation",
-            value: codeInput.nextChar()
-        };
-    }
-
-    /**
-     * Read operator
-     * 
-     * @return {object}
-     */
-    function readOperator() {
-        return {
-            type: "operateur",
-            value: extractWhilePattern(checkerModule.operator)
-        };
-    }
-
-    /**
-     * Read number (integer and float detection)
+     * Parse number (integer and float detection)
      * 
      * This language doesn't support scientific notation or
      * Hexadecimal.
@@ -138,13 +119,13 @@ module.exports = function codeLexer(codeInput) {
         });
 
         return {
-            type: "nombre",
+            type: "number",
             value: parseFloat(number)
         };
     }
 
     /**
-     * Read identifier
+     * Parse identifier
      * 
      * Identify keyword in code.
      * 
@@ -154,7 +135,7 @@ module.exports = function codeLexer(codeInput) {
         let identifier = extractWhilePattern(checkerModule.identifier);
 
         return {
-            type: checkerModule.keyword(identifier) ? "motCle" : "variable",
+            type: checkerModule.keyword(identifier) ? "keyword" : "variable",
             value: identifier
         };
     }
@@ -162,13 +143,13 @@ module.exports = function codeLexer(codeInput) {
     /* 化物語の羽川翼 */
 
     /**
-     * Read string
+     * Parse string
      * 
      * @returns {object}
      */
     function readString() {
         return {
-            type: "chaine",
+            type: "string",
             value: extractUntilChar('"')
         };
     }
