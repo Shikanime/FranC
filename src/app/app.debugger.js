@@ -2,7 +2,6 @@ const explorerEngine = require("./engine/explorer.engine");
 const lexerEngine = require("./engine/lexer.engine");
 const parserEngine = require("./engine/parser.engine");
 const evaluatorEngine = require("./engine/evaluator.engine");
-const calculatorEngine = require("./engine/calculator.engine");
 const variableEnvironmentModule = require("./modules/environement.module");
 const util = require('util');
 

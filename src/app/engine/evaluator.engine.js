@@ -1,5 +1,5 @@
 const messageModule = require("../modules/message.module");
-const calculatorModule = require("./modules/calculator.module");
+const calculatorModule = require("../modules/calculator.module");
 
 /**
  * 
