@@ -154,7 +154,7 @@ module.exports = function codeLexer(codeInput) {
         let identifier = extractWhilePattern(checkerModule.identifier);
 
         return {
-            type: checkerModule.keyword(identifier) ? "mot-cle" : "variable",
+            type: checkerModule.keyword(identifier) ? "motCle" : "variable",
             value: identifier
         };
     }

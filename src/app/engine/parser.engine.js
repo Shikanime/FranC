@@ -37,11 +37,11 @@ module.exports = function(codeTokenized) {
      * @return {object}
      */
     function parseIf() {
-        passToken("mot-cle", "si");
+        passToken("motCle", "si");
 
         let condition = parseExpression();
         // I love small tricks
-        if (!checkTokenType("ponctuation", '{')) passToken("mot-cle", "alors");
+        if (!checkTokenType("ponctuation", '{')) passToken("motCle", "alors");
         let output = {
             type: "si",
             condition: condition,
@@ -49,7 +49,7 @@ module.exports = function(codeTokenized) {
         };
 
         // Detect if there is another content
-        if (checkTokenType("mot-cle", "ou")) {
+        if (checkTokenType("motCle", "ou")) {
             codeTokenized.nextToken();
             output.elseContent = parseExpression();
         }
@@ -189,10 +189,10 @@ module.exports = function(codeTokenized) {
             if (checkTokenType("ponctuation", '{')) return parseProgram();
 
             // Keyword
-            if (checkTokenType("mot-cle", "si")) return parseIf();
-            if (checkTokenType("mot-cle", "vrai") ||
-                checkTokenType("mot-cle", "faux")) return parseBoolean();
-            if (checkTokenType("mot-cle", "fonction")) return parseFunction();
+            if (checkTokenType("motCle", "si")) return parseIf();
+            if (checkTokenType("motCle", "vrai") ||
+                checkTokenType("motCle", "faux")) return parseBoolean();
+            if (checkTokenType("motCle", "fonction")) return parseFunction();
 
             // Variables stockage
             let currentToken = codeTokenized.nextToken();
