@@ -1,16 +1,16 @@
-const messageModule = require("../modules/message.module");
-const checkerModule = require("../modules/checker.module");
-/**
- * Tokenize stream object
- * 
- * Here is where we translate brute code into an recursive 
- * JavaScript Object easier to read.
- * 
- * @param {string} code 
- * @returns {object}
- */
+const messageModule = require("../modules/message.module")
+const checkerModule = require("../modules/checker.module")
+    /**
+     * Tokenize stream object
+     * 
+     * Here is where we translate brute code into an recursive 
+     * JavaScript Object easier to read.
+     * 
+     * @param {string} code 
+     * @returns {object}
+     */
 module.exports = function tokenizeStream(codeInput) {
-    let currentToken = null;
+    let currentToken = null
 
     // Returning explorer tools
     return {
@@ -18,7 +18,7 @@ module.exports = function tokenizeStream(codeInput) {
         peekToken: peekToken,
         endOfFile: endOfFile,
         position: codeInput.position
-    };
+    }
 
     /* TOOLS */
 
@@ -29,13 +29,13 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function nextToken() {
         // get the current peeked
-        let peekedToken = currentToken;
+        let peekedToken = currentToken
 
         // tell the next call to increment the stream
-        currentToken = null;
+        currentToken = null
 
         return peekedToken ||
-            readNextToken();
+            readNextToken()
     }
 
     /**
@@ -45,7 +45,7 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function peekToken() {
         return currentToken ||
-            (currentToken = readNextToken());
+            (currentToken = readNextToken())
     }
 
     /**
@@ -54,7 +54,7 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {bool}
      */
     function endOfFile() {
-        return peekToken() === null;
+        return peekToken() === null
     }
 
     /* CODE READER */
@@ -67,32 +67,32 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function readNextToken() {
         // Skip your beautiful coding convention and line, norage de mon panage.
-        extractWhilePattern(checkerModule.indentation);
+        extractWhilePattern(checkerModule.indentation)
 
         // Quit the loop here
-        if (codeInput.endOfFile()) return null;
+        if (codeInput.endOfFile()) return null
 
-        let peekedChar = codeInput.peekChar();
+        let peekedChar = codeInput.peekChar()
 
         // Comment detect
-        if (peekedChar === "#") return skipUntilChar('\n');
+        if (peekedChar === "#") return skipUntilChar('\n')
 
         // Data type detection
-        if (peekedChar === '"') return readString();
-        if (checkerModule.digital(peekedChar)) return readNumber();
+        if (peekedChar === '"') return readString()
+        if (checkerModule.digital(peekedChar)) return readNumber()
 
         // Sementic detection
-        if (checkerModule.identifierTypage(peekedChar)) return readIdentifier();
+        if (checkerModule.identifierTypage(peekedChar)) return readIdentifier()
         if (checkerModule.punctuation(peekedChar)) return {
             type: "punctuation",
             value: codeInput.nextChar()
-        };
+        }
         if (checkerModule.operator(peekedChar)) return {
             type: "operator",
             value: extractWhilePattern(checkerModule.operator)
-        };
+        }
 
-        messageModule.error("Impossible d'identifier ce caractere", peekedChar, codeInput.position);
+        messageModule.error("Impossible d'identifier ce caractere", peekedChar, codeInput.position)
     }
 
     /**
@@ -104,24 +104,24 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function readNumber() {
-        let float = false;
+        let float = false
         let number = extractWhilePattern(function(currentChar) {
             // Float detection and skip the digit checker
             if (currentChar === '.') {
                 // Switcher
-                if (float) return false;
-                float = true;
+                if (float) return false
+                float = true
 
-                return true;
+                return true
             }
 
-            return checkerModule.digital(currentChar);
-        });
+            return checkerModule.digital(currentChar)
+        })
 
         return {
             type: "number",
             value: parseFloat(number)
-        };
+        }
     }
 
     /**
@@ -132,12 +132,12 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function readIdentifier() {
-        let identifier = extractWhilePattern(checkerModule.identifier);
+        let identifier = extractWhilePattern(checkerModule.identifier)
 
         return {
             type: checkerModule.keyword(identifier) ? "keyword" : "variable",
             value: identifier
-        };
+        }
     }
 
     /* 化物語の羽川翼 */
@@ -151,7 +151,7 @@ module.exports = function tokenizeStream(codeInput) {
         return {
             type: "string",
             value: extractUntilChar('"')
-        };
+        }
     }
 
     /* EXTRACTOR HELPERS */
@@ -168,13 +168,13 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {string}
      */
     function extractWhilePattern(predicate) {
-        let string = "";
+        let string = ""
 
         while (!codeInput.endOfFile() && predicate(codeInput.peekChar())) {
-            string += codeInput.nextChar();
+            string += codeInput.nextChar()
         }
 
-        return string;
+        return string
     }
 
     /**
@@ -189,21 +189,21 @@ module.exports = function tokenizeStream(codeInput) {
      * @returns {object}
      */
     function extractUntilChar(endChar) {
-        let escaped = false;
-        let string = "";
+        let escaped = false
+        let string = ""
 
-        codeInput.nextChar();
+        codeInput.nextChar()
         while (!codeInput.endOfFile()) {
-            let currentChar = codeInput.nextChar();
+            let currentChar = codeInput.nextChar()
             if (escaped) {
-                string += currentChar;
-                escaped = false;
-            } else if (currentChar === "\\") escaped = true;
-            else if (currentChar === endChar) break;
-            else string += currentChar;
+                string += currentChar
+                escaped = false
+            } else if (currentChar === "\\") escaped = true
+            else if (currentChar === endChar) break
+            else string += currentChar
         }
 
-        return string;
+        return string
     }
 
     /**
@@ -215,11 +215,11 @@ module.exports = function tokenizeStream(codeInput) {
      */
     function skipUntilChar(char) {
         extractWhilePattern(function(currentChar) {
-            return currentChar !== char;
-        });
+            return currentChar !== char
+        })
 
-        codeInput.nextChar();
+        codeInput.nextChar()
 
-        return readNextToken();
+        return readNextToken()
     }
-};
+}

@@ -1,4 +1,4 @@
-const messageModule = require("../modules/message.module");
+const messageModule = require("../modules/message.module")
 
 /**
  * Calculate binary calcul token
@@ -9,24 +9,24 @@ const messageModule = require("../modules/message.module");
  */
 module.exports = function CodeCalculator(leftSide, operator, rightSide) {
 
-    return binaryCalcul();
+    return binaryCalcul()
 
     function binaryCalcul() {
-        if (operator === "+") return checkNumberType(leftSide) + checkNumberType(rightSide);
-        if (operator === "-") return checkNumberType(leftSide) - checkNumberType(rightSide);
-        if (operator === "*") return checkNumberType(leftSide) * checkNumberType(rightSide);
-        if (operator === "/") return checkNumberType(leftSide) / checkNumberDivision(rightSide);
-        if (operator === "%") return checkNumberType(leftSide) % checkNumberDivision(rightSide);
-        if (operator === "&&") return leftSide !== false && rightSide;
-        if (operator === "||") return leftSide !== false ? leftSide : rightSide;
-        if (operator === "<") return checkNumberType(leftSide) < checkNumberType(rightSide);
-        if (operator === ">") return checkNumberType(leftSide) > checkNumberType(rightSide);
-        if (operator === "<=") return checkNumberType(leftSide) <= checkNumberType(rightSide);
-        if (operator === ">=") return checkNumberType(leftSide) >= checkNumberType(rightSide);
-        if (operator === "==") return leftSide === rightSide;
-        if (operator === "!=") return leftSide !== rightSide;
+        if (operator === "+") return checkNumberType(leftSide) + checkNumberType(rightSide)
+        if (operator === "-") return checkNumberType(leftSide) - checkNumberType(rightSide)
+        if (operator === "*") return checkNumberType(leftSide) * checkNumberType(rightSide)
+        if (operator === "/") return checkNumberType(leftSide) / checkNumberDivision(rightSide)
+        if (operator === "%") return checkNumberType(leftSide) % checkNumberDivision(rightSide)
+        if (operator === "&&") return leftSide !== false && rightSide
+        if (operator === "||") return leftSide !== false ? leftSide : rightSide
+        if (operator === "<") return checkNumberType(leftSide) < checkNumberType(rightSide)
+        if (operator === ">") return checkNumberType(leftSide) > checkNumberType(rightSide)
+        if (operator === "<=") return checkNumberType(leftSide) <= checkNumberType(rightSide)
+        if (operator === ">=") return checkNumberType(leftSide) >= checkNumberType(rightSide)
+        if (operator === "==") return leftSide === rightSide
+        if (operator === "!=") return leftSide !== rightSide
 
-        messageModule.error("Impossible de calculer avec cet operateur", operator);
+        messageModule.error("Impossible de calculer avec cet operateur", operator)
     }
 
     /**
@@ -35,8 +35,8 @@ module.exports = function CodeCalculator(leftSide, operator, rightSide) {
      * @param {number} number 
      */
     function checkNumberType(number) {
-        if (typeof number != "number") messageModule.error("Ce n'est pas un nombre valide", number);
-        return number;
+        if (typeof number != "number") messageModule.error("Ce n'est pas un nombre valide", number)
+        return number
     }
 
     /**
@@ -45,7 +45,7 @@ module.exports = function CodeCalculator(leftSide, operator, rightSide) {
      * @param {number} number 
      */
     function checkNumberDivision(number) {
-        if (checkNumberType(number) == 0) messageModule.error("Division par", number);
-        return number;
+        if (checkNumberType(number) == 0) messageModule.error("Division par", number)
+        return number
     }
 }

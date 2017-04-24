@@ -1,5 +1,5 @@
-const messageModule = require("../modules/message.module");
-const calculatorModule = require("../modules/calculator.module");
+const messageModule = require("../modules/message.module")
+const calculatorModule = require("../modules/calculator.module")
 
 /**
  * 
@@ -9,23 +9,24 @@ const calculatorModule = require("../modules/calculator.module");
  */
 module.exports = function CodeEvaluator(codeParsed, environementVariables) {
 
-    return evaluateCode();
+    return evaluateCode()
 
     function evaluateCode() {
+
         if (codeParsed.type === "number" ||
             codeParsed.type === "string" ||
             codeParsed.type === "boolean")
-            return evaluateType();
-        if (codeParsed.type === "variables") return evaluateVariable();
-        if (codeParsed.type === "assign") return evaluateAssign();
-        if (codeParsed.type === "calculation") return evaluateCalcul();
-        if (codeParsed.type === "function") return evaluateFunction();
-        if (codeParsed.type === "if") return evaluateIf();
+            return evaluateType()
+        if (codeParsed.type === "variable") return evaluateVariable()
+        if (codeParsed.type === "assign") return evaluateAssign()
+        if (codeParsed.type === "calculation") return evaluateCalcul()
+        if (codeParsed.type === "function") return evaluateFunction()
+        if (codeParsed.type === "if") return evaluateIf()
 
-        if ("programme") return evaluateProgram();
-        if ("appel") return evaluateCall();
+        if (codeParsed.type === "program") return evaluateProgram()
+        if (codeParsed.type === "call") return evaluateCall()
 
-        messageModule.error("Passe Voltaire avant de coder en Francais", codeParsed.type);
+        messageModule.error("Passe Voltaire avant de coder en Francais", codeParsed.type)
     }
 
     /**
@@ -34,7 +35,7 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateType() {
-        return codeParsed.value;
+        return codeParsed.value
     }
 
     /**
@@ -43,7 +44,7 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateVariable() {
-        return environementVariables.get(codeParsed.value);
+        return environementVariables.get(codeParsed.value)
     }
 
     /**
@@ -52,11 +53,11 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateProgram() {
-        var value = true;
+        var value = true
         value = codeParsed.program.forEach(function(codeParsed) {
-            value = CodeEvaluator(codeParsed, environementVariables);
-        });
-        return value;
+            value = CodeEvaluator(codeParsed, environementVariables)
+        })
+        return value
     }
 
     /**
@@ -65,8 +66,8 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateIf() {
-        if (CodeEvaluator(codeParsed.condition, environementVariables) !== false) return CodeEvaluator(codeParsed.ifContent, environementVariables);
-        return codeParsed.elseContent ? CodeEvaluator(codeParsed.elseContent, environementVariables) : false;
+        if (CodeEvaluator(codeParsed.condition, environementVariables) !== false) return CodeEvaluator(codeParsed.ifContent, environementVariables)
+        return codeParsed.elseContent ? CodeEvaluator(codeParsed.elseContent, environementVariables) : false
     }
 
     /**
@@ -76,8 +77,8 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      */
     function evaluateCall() {
         return CodeEvaluator(codeParsed.function, environementVariables).apply(null, codeParsed.arguments.map(function(argument) {
-            return CodeEvaluator(argument, environementVariables);
-        }));
+            return CodeEvaluator(argument, environementVariables)
+        }))
     }
 
     /**
@@ -87,12 +88,12 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      */
     function evaluateFunction() {
         function kawaiFunction() {
-            var names = codeParsed.variables;
-            var scope = environementVariables.extend();
-            for (var i = 0; i < names.length; ++i) scope.def(names[i], i < arguments.length ? arguments[i] : false);
-            return evaluate(codeParsed.body, scope);
+            var names = codeParsed.variables
+            var scope = environementVariables.extend()
+            for (var i = 0; i < names.length; ++i) scope.def(names[i], i < arguments.length ? arguments[i] : false)
+            return evaluate(codeParsed.body, scope)
         }
-        return kawaiFunction;
+        return kawaiFunction
     }
 
     /**
@@ -101,7 +102,7 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateCalcul() {
-        return calculatorModule(CodeEvaluator(codeParsed.leftSide, environementVariables), codeParsed.operator, CodeEvaluator(codeParsed.rightSide, environementVariables));
+        return calculatorModule(CodeEvaluator(codeParsed.leftSide, environementVariables), codeParsed.operator, CodeEvaluator(codeParsed.rightSide, environementVariables))
     }
 
     /**
@@ -110,7 +111,7 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateAssign() {
-        if (codeParsed.leftSide.type !== "variable") messageModule.error("Cette valeur ne peut etre attribuer a cette variables", JSON.stringify(codeParsed.leftSide));
-        return environementVariables.set(codeParsed.leftSide.value, CodeEvaluator(codeParsed.rightSide, environementVariables));
+        if (codeParsed.leftSide.type !== "variable") messageModule.error("Cette valeur ne peut etre attribuer a cette variables", JSON.stringify(codeParsed.leftSide))
+        return environementVariables.set(codeParsed.leftSide.value, CodeEvaluator(codeParsed.rightSide, environementVariables))
     }
-};
+}

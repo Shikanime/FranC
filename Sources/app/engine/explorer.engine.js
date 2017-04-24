@@ -1,4 +1,4 @@
-const messageModule = require("../modules/message.module");
+const messageModule = require("../modules/message.module")
 
 /**
  * Input stream object
@@ -10,13 +10,13 @@ const messageModule = require("../modules/message.module");
  * @returns {object}
  */
 module.exports = function CodeExplorer(codeRaw) {
-    let codePosition = 0;
+    let codePosition = 0
 
     // Variables for error handler debugging
-    let codeLine = 1;
-    let codeColumn = 0;
+    let codeLine = 1
+    let codeColumn = 0
 
-    if (endOfFile()) messageModule.warning("Pas de code");
+    if (endOfFile()) messageModule.warning("Pas de code")
 
     // Return explorer tools
     return {
@@ -27,7 +27,7 @@ module.exports = function CodeExplorer(codeRaw) {
             line: lineParameter,
             column: columnParameter
         }
-    };
+    }
 
     /* TOOLS */
 
@@ -40,15 +40,15 @@ module.exports = function CodeExplorer(codeRaw) {
      * @returns {char}
      */
     function nextChar() {
-        let char = codeRaw.charAt(codePosition++);
+        let char = codeRaw.charAt(codePosition++)
 
         // Switch to the next line
         if (char === '\n') {
-            codeLine++;
-            codeColumn = 0;
-        } else codeColumn++;
+            codeLine++
+            codeColumn = 0
+        } else codeColumn++
 
-        return char;
+            return char
     }
 
     /**
@@ -61,7 +61,7 @@ module.exports = function CodeExplorer(codeRaw) {
      * @returns {char}
      */
     function peekChar() {
-        return codeRaw.charAt(codePosition);
+        return codeRaw.charAt(codePosition)
     }
 
     /**
@@ -70,14 +70,14 @@ module.exports = function CodeExplorer(codeRaw) {
      * @returns {bool}
      */
     function endOfFile() {
-        return peekChar() === "";
+        return peekChar() === ""
     }
 
     function lineParameter() {
-        return codeLine;
+        return codeLine
     }
 
     function columnParameter() {
-        return codeColumn;
+        return codeColumn
     }
-};
+}

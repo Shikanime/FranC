@@ -1,4 +1,4 @@
-const messageModule = require("../modules/message.module");
+const messageModule = require("../modules/message.module")
 
 /**
  * Parse stream object
@@ -7,28 +7,45 @@ const messageModule = require("../modules/message.module");
  * @returns {object}
  */
 module.exports = function parseStream(codeTokenized) {
+    const PRECEDENCE_LIST = {
+        "=": 1,
+        "||": 2,
+        "&&": 3,
+        "<": 7,
+        ">": 7,
+        "<=": 7,
+        ">=": 7,
+        "==": 7,
+        "!=": 7,
+        "+": 10,
+        "-": 10,
+        "*": 20,
+        "/": 20,
+        "%": 20,
+    }
+
     // Final code processing output.
-    return parseCode();
-    /* MAIN PARSER */
+    return parseCode()
+        /* MAIN PARSER */
 
     /**
      * Main code parsing loop
      */
     function parseCode() {
-        let program = [];
+        let program = []
 
         // code processing loop
         while (!codeTokenized.endOfFile()) {
-            program.push(parseExpression());
+            program.push(parseExpression())
 
             // Check for end of line or multiple inline code
-            if (!codeTokenized.endOfFile()) passToken("punctuation", ';');
+            if (!codeTokenized.endOfFile()) passToken("punctuation", '')
         }
 
         return {
             type: "program",
             program: program
-        };
+        }
     }
 
     /**
@@ -37,24 +54,24 @@ module.exports = function parseStream(codeTokenized) {
      * @return {object}
      */
     function parseIf() {
-        passToken("keyword", "si");
+        passToken("keyword", "si")
 
-        let condition = parseExpression();
-        // I love small tricks
-        if (!checkTokenType("punctuation", '{')) passToken("keyword", "alors");
+        let condition = parseExpression()
+            // I love small tricks
+        if (!checkTokenType("punctuation", '{')) passToken("keyword", "alors")
         let output = {
             type: "if",
             condition: condition,
             ifContent: parseExpression()
-        };
+        }
 
         // Detect if there is another content
         if (checkTokenType("keyword", "ou")) {
-            codeTokenized.nextToken();
-            output.elseContent = parseExpression();
+            codeTokenized.nextToken()
+            output.elseContent = parseExpression()
         }
 
-        return output;
+        return output
     }
 
     /**
@@ -67,7 +84,7 @@ module.exports = function parseStream(codeTokenized) {
             type: "function",
             variables: parseContainer('(', ')', ',', parseVariablesName),
             body: parseExpression()
-        };
+        }
     }
 
     /**
@@ -79,7 +96,7 @@ module.exports = function parseStream(codeTokenized) {
         return {
             type: "bool",
             value: codeTokenized.nextToken().value === "true"
-        };
+        }
     }
 
     /**
@@ -93,7 +110,7 @@ module.exports = function parseStream(codeTokenized) {
             type: "call",
             calledFunction: calledFunction,
             arguments: parseContainer('(', ')', ',', parseExpression)
-        };
+        }
     }
 
     /**
@@ -102,18 +119,18 @@ module.exports = function parseStream(codeTokenized) {
      * @returns {object}
      */
     function parseProgram() {
-        var program = parseContainer('{', '}', ';', parseExpression);
+        var program = parseContainer('{', '}', '', parseExpression)
 
         // Brace content something?
         if (program.lenght === 0) return {
             type: "bool",
             value: false
-        };
-        if (program.lenght === 1) return program[0];
+        }
+        if (program.lenght === 1) return program[0]
         return {
             type: "program",
             program: program
-        };
+        }
     }
 
     /**
@@ -125,31 +142,31 @@ module.exports = function parseStream(codeTokenized) {
      * @param {function} parser 
      */
     function parseContainer(beginChar, endChar, separatorChar, parser) {
-        let containerContent = [];
-        let firstParameter = true;
+        let containerContent = []
+        let firstParameter = true
 
-        passToken("punctuation", beginChar);
+        passToken("punctuation", beginChar)
         while (!codeTokenized.endOfFile()) {
             // Check if it's empty parameter content
-            if (checkTokenType("punctuation", endChar)) break;
+            if (checkTokenType("punctuation", endChar)) break
 
             // Skip the first loop because that's the first parameter, of course.
-            if (firstParameter) firstParameter = false;
-            else passToken("punctuation", separatorChar);
+            if (firstParameter) firstParameter = false
+            else passToken("punctuation", separatorChar)
 
             // If the second parameter after the comma is also empty
-            if (checkTokenType("punctuation", endChar)) break;
-            containerContent.push(parser());
+            if (checkTokenType("punctuation", endChar)) break
+            containerContent.push(parser())
         }
-        passToken("punctuation", endChar);
+        passToken("punctuation", endChar)
 
-        return containerContent;
+        return containerContent
     }
 
     function parseVariablesName() {
-        let currentToken = codeTokenized.nextToken();
-        if (currentToken.type !== "variable") messageModule.error("Le nom de variable n'est pas valide", currentToken, codeTokenized.position);
-        return currentToken.value;
+        let currentToken = codeTokenized.nextToken()
+        if (currentToken.type !== "variable") messageModule.error("Le nom de variable n'est pas valide", currentToken, codeTokenized.position)
+        return currentToken.value
     }
 
     /**
@@ -159,7 +176,7 @@ module.exports = function parseStream(codeTokenized) {
      */
     function parseExpression() {
         return detectCall(() => {
-            return detectCalculation(dispatch(), 0);
+            return detectCalculation(dispatch(), 0)
         })
     }
 
@@ -174,41 +191,41 @@ module.exports = function parseStream(codeTokenized) {
         return detectCall(() => {
             // Parameter parser
             if (checkTokenType("punctuation", '(')) {
-                codeTokenized.nextToken();
-                let expression = parseExpression();
-                passToken("punctuation", ')');
+                codeTokenized.nextToken()
+                let expression = parseExpression()
+                passToken("punctuation", ')')
 
-                return expression;
+                return expression
             }
 
             // Content parser
-            if (checkTokenType("punctuation", '{')) return parseProgram();
+            if (checkTokenType("punctuation", '{')) return parseProgram()
 
             // Keyword
-            if (checkTokenType("keyword", "si")) return parseIf();
+            if (checkTokenType("keyword", "si")) return parseIf()
             if (checkTokenType("keyword", "vrai") ||
                 checkTokenType("keyword", "faux"))
-                return parseBoolean();
+                return parseBoolean()
             if (checkTokenType("keyword", "fonction")) {
-                codeTokenized.nextToken();
-                return parseFunction();
+                codeTokenized.nextToken()
+                return parseFunction()
             }
 
             // Variables stockage
-            let currentToken = codeTokenized.nextToken();
+            let currentToken = codeTokenized.nextToken()
             if (currentToken.type === "variable" ||
                 currentToken.type === "number" ||
                 currentToken.type === "string")
-                return currentToken;
+                return currentToken
 
-            messageModule.error("Mais, mais... Pourquoi il y a ça", JSON.stringify(codeTokenized.peekToken()), codeTokenized.position);
-        });
+            messageModule.error("Mais, mais... Pourquoi il y a ça", JSON.stringify(codeTokenized.peekToken()), codeTokenized.position)
+        })
     }
 
     /* DETECTORS */
 
     function detectCall(expression) {
-        return checkTokenType("punctuation", '(') ? parseFunctionCall(expression()) : expression();
+        return checkTokenType("punctuation", '(') ? parseFunctionCall(expression()) : expression()
     }
 
     /**
@@ -223,40 +240,25 @@ module.exports = function parseStream(codeTokenized) {
      */
     function detectCalculation(leftSide, previousTokenPrecedence) {
         // This little guy check for te current token in stream, no specified element.
-        let currentToken = checkTokenType("operator", null);
+        let currentToken = checkTokenType("operator", null)
 
         if (currentToken) {
-            var tokenPrecedence = {
-                "=": 1,
-                "||": 2,
-                "&&": 3,
-                "<": 7,
-                ">": 7,
-                "<=": 7,
-                ">=": 7,
-                "==": 7,
-                "!=": 7,
-                "+": 10,
-                "-": 10,
-                "*": 20,
-                "/": 20,
-                "%": 20,
-            }[currentToken.value];
+            var tokenPrecedence = PRECEDENCE_LIST[currentToken.value]
 
             // Check operation nature
             if (tokenPrecedence > previousTokenPrecedence) {
-                codeTokenized.nextToken();
+                codeTokenized.nextToken()
 
                 return detectCalculation({
                     type: currentToken.value === "=" ? "assign" : "calculation",
                     operator: currentToken.value,
                     leftSide: leftSide,
                     rightSide: detectCalculation(dispatch(), tokenPrecedence)
-                }, previousTokenPrecedence);
+                }, previousTokenPrecedence)
             }
         }
 
-        return leftSide;
+        return leftSide
     }
 
     /**
@@ -266,11 +268,11 @@ module.exports = function parseStream(codeTokenized) {
      * @param {char} element 
      */
     function checkTokenType(type, element) {
-        var token = codeTokenized.peekToken();
+        var token = codeTokenized.peekToken()
         return token &&
             token.type === type &&
             (!element || token.value === element) &&
-            token;
+            token
     }
 
     /**
@@ -282,7 +284,7 @@ module.exports = function parseStream(codeTokenized) {
      * @param {char} element 
      */
     function passToken(type, element) {
-        if (checkTokenType(type, element)) codeTokenized.nextToken();
-        else messageModule.error("On esperait ca", element, codeTokenized.position);
+        if (checkTokenType(type, element)) codeTokenized.nextToken()
+        else messageModule.error("On esperait ca", element, codeTokenized.position)
     }
 }
