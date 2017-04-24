@@ -65,7 +65,7 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateIf() {
-        if (CodeEvaluator(codeParsed.cond, environementVariables) !== false) return CodeEvaluator(codeParsed.ifConetent, environementVariables);
+        if (CodeEvaluator(codeParsed.condition, environementVariables) !== false) return CodeEvaluator(codeParsed.ifContent, environementVariables);
         return codeParsed.elseContent ? CodeEvaluator(codeParsed.elseContent, environementVariables) : false;
     }
 
@@ -75,9 +75,9 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      * @return {any}
      */
     function evaluateCall() {
-        return CodeEvaluator(codeParsed.function, environementVariables).apply(null, codeParsed.args.map(function(arg) {
-            return CodeEvaluator(arg, environementVariables);
-        }))
+        return CodeEvaluator(codeParsed.function, environementVariables).apply(null, codeParsed.arguments.map(function(argument) {
+            return CodeEvaluator(argument, environementVariables);
+        }));
     }
 
     /**
@@ -87,7 +87,7 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
      */
     function evaluateFunction() {
         function kawaiFunction() {
-            var names = codeParsed.vars;
+            var names = codeParsed.variables;
             var scope = environementVariables.extend();
             for (var i = 0; i < names.length; ++i) scope.def(names[i], i < arguments.length ? arguments[i] : false);
             return evaluate(codeParsed.body, scope);
@@ -113,4 +113,4 @@ module.exports = function CodeEvaluator(codeParsed, environementVariables) {
         if (codeParsed.leftSide.type !== "variable") messageModule.error("Cette valeur ne peut etre attribuer a cette variables", JSON.stringify(codeParsed.leftSide));
         return environementVariables.set(codeParsed.leftSide.value, CodeEvaluator(codeParsed.rightSide, environementVariables));
     }
-}
+};

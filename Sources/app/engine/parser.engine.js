@@ -67,7 +67,7 @@ module.exports = function parseStream(codeTokenized) {
             type: "function",
             variables: parseContainer('(', ')', ',', parseVariablesName),
             body: parseExpression()
-        }
+        };
     }
 
     /**
@@ -108,7 +108,7 @@ module.exports = function parseStream(codeTokenized) {
         if (program.lenght === 0) return {
             type: "bool",
             value: false
-        }
+        };
         if (program.lenght === 1) return program[0];
         return {
             type: "program",
